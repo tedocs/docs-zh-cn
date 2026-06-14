@@ -130,14 +130,14 @@ jobs:
 
   # ── Create PR and request review ─────────────────────────────
   create-pr-and-review:
-    needs: sync
+    needs: sync-merge-translate-apply
     if: |
       always() &&
-      needs.sync.result == 'success' &&
-      needs.sync.outputs.merge_result != 'no_changes'
+      needs.sync-merge-translate-apply.result == 'success' &&
+      needs.sync-merge-translate-apply.outputs.merge_result != 'no_changes'
     runs-on: ubuntu-latest
     env:
-      UPSTREAM_HASH: ${{ needs.sync.outputs.upstream_hash }}
+      UPSTREAM_HASH: ${{ needs.sync-merge-translate-apply.outputs.upstream_hash }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -175,16 +175,16 @@ jobs:
           ## Upstream Sync
 
           - Upstream: \`${{ env.UPSTREAM_REPO }}\` @ \`${UPSTREAM_HASH}\`
-          - Merge result: \`${{ needs.sync.outputs.merge_result }}\`
+          - Merge result: \`${{ needs.sync-merge-translate-apply.outputs.merge_result }}\`
 
           ### Changes
-          $(if [ -n "${{ needs.sync.outputs.conflict_files }}" ]; then
+          $(if [ -n "${{ needs.sync-merge-translate-apply.outputs.conflict_files }}" ]; then
             echo "#### Conflict files (resolved)"
-            echo "${{ needs.sync.outputs.conflict_files }}" | tr ',' '\n' | sed 's/^/- /'
+            echo "${{ needs.sync-merge-translate-apply.outputs.conflict_files }}" | tr ',' '\n' | sed 's/^/- /'
           fi)
-          $(if [ -n "${{ needs.sync.outputs.changed_files }}" ]; then
+          $(if [ -n "${{ needs.sync-merge-translate-apply.outputs.changed_files }}" ]; then
             echo "#### Translated files"
-            echo "${{ needs.sync.outputs.changed_files }}" | tr ',' '\n' | sed 's/^/- /'
+            echo "${{ needs.sync-merge-translate-apply.outputs.changed_files }}" | tr ',' '\n' | sed 's/^/- /'
           fi)
 
           > Automated by [autopr.yml](.github/workflows/autopr.yml)
