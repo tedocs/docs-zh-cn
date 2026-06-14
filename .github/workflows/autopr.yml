@@ -49,11 +49,13 @@ jobs:
         id: detect
         run: node scripts/auto-pr.js
 
-  # ── Step 2: Merge upstream & translate with Copilot CLI ────────
-  merge-and-translate:
+  # ── Step 2: Merge upstream ─────────────────────────────────────
+  merge:
     needs: detect-changes
     if: needs.detect-changes.outputs.merge_result != 'no_changes'
     runs-on: ubuntu-latest
+    outputs:
+      merge_status: ${{ steps.merge.outputs.merge_status }}
     env:
       MERGE_RESULT: ${{ needs.detect-changes.outputs.merge_result }}
       CONFLICT_FILES: ${{ needs.detect-changes.outputs.conflict_files }}
@@ -118,63 +120,124 @@ jobs:
           After resolving all conflicts, stage the resolved files with git add.
           " --allow-all
 
-      - name: Translate changed files with Copilot CLI
-        if: steps.merge.outputs.merge_status == 'clean' && env.CHANGED_FILES != ''
+      - name: Commit merge
+        run: |
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit after merge."
+            exit 0
+          fi
+
+          git commit -m "sync: merge upstream $UPSTREAM_HASH
+
+          - Merge result: $MERGE_RESULT
+          - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
+
+          git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
+
+  # ── Step 3: Translate changed .md files ───────────────────────
+  translate:
+    needs: [detect-changes, merge]
+    if: needs.merge.outputs.merge_status == 'clean' && needs.detect-changes.outputs.changed_files != ''
+    runs-on: ubuntu-latest
+    env:
+      CHANGED_FILES: ${{ needs.detect-changes.outputs.changed_files }}
+      UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SYNC_BRANCH }}
+          fetch-depth: 0
+          token: ${{ secrets.REPO_ACTION_TOKEN }}
+
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      - name: Restore translation conventions from main
+        run: |
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .claude/skills/vuejs-docs-zh-cn/
+
+      - name: Translate changed .md files with Copilot CLI
         env:
           # Requires Fine-Grained PAT with "Copilot Requests" permission
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
-          # Translate each changed .md file in src/
           IFS=',' read -ra files <<< "$CHANGED_FILES"
           for file in "${files[@]}"; do
             # Only process .md files in src/ directory
             if [[ "$file" == src/* && "$file" == *.md ]]; then
               echo "Translating: $file"
               copilot -p "
-              You are translating Vue.js documentation from English to Chinese.
+              You are a professional Vue.js documentation translator (English → Simplified Chinese).
 
-              Read the file at $file and translate all English prose content to Chinese.
-              DO NOT translate:
-              - Code blocks
-              - URLs
-              - Code identifiers (component names, API names, etc.)
-              - Frontmatter (keep as-is except translate title/description)
+              Target file: $file
 
-              Translation conventions:
-              - $(cat .claude/skills/vuejs-docs-zh-cn/references/terminology.md)
-              - $(cat .claude/skills/vuejs-docs-zh-cn/references/formatting.md)
-              - $(cat .claude/skills/vuejs-docs-zh-cn/references/guidelines.md)
+              ## Scope
 
-              Write the translated file back to $file.
+              Only translate Markdown (.md) files. This file IS a Markdown file — proceed with translation.
+
+              ## What to translate
+
+              1. All English prose content (paragraphs, headings, list items, table cells).
+              2. VitePress custom container content — these blocks MUST be translated:
+                 - \`\`\`:::tip ... :::\`\`\`
+                 - \`\`\`:::warning ... :::\`\`\`
+                 - \`\`\`:::danger ... :::\`\`\`
+                 - \`\`\`:::info ... :::\`\`\`
+                 The text inside these containers is natural language and should be translated to Chinese.
+
+              ## What NOT to translate
+
+              1. Fenced code blocks — do NOT modify content inside:
+                 - \`\`\`vue\`\`\` blocks (Vue SFC code snippets) — keep entirely as-is, including comments
+                 - \`\`\`js\`\`\`, \`\`\`ts\`\`\`, \`\`\`html\`\`\`, \`\`\`css\`\`\`, \`\`\`sh\`\`\` and any other language blocks
+                 - Generic \`\`\` blocks without a language tag
+              2. Inline code (backtick-wrapped text)
+              3. URLs and link targets
+              4. Code identifiers (component names, API names, props, etc.)
+              5. Frontmatter — keep as-is except translate the \`title\` and \`description\` fields
+
+              ## Translation conventions
+
+              You MUST strictly follow these conventions:
+
+              ### Terminology
+              $(cat .claude/skills/vuejs-docs-zh-cn/references/terminology.md)
+
+              ### Formatting
+              $(cat .claude/skills/vuejs-docs-zh-cn/references/formatting.md)
+
+              ### Guidelines
+              $(cat .claude/skills/vuejs-docs-zh-cn/references/guidelines.md)
+
+              ## Output
+
+              Write the translated file back to $file. Ensure the line count stays as close to the original as possible (line-by-line correspondence).
               " --allow-all
             fi
           done
 
-      - name: Commit and push
-        env:
-          GH_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
+      - name: Commit and push translations
         run: |
-          # Stage all changes
           git add -A
 
-          # Check if there are changes to commit
           if git diff --cached --quiet; then
-            echo "No changes to commit after merge/translate."
+            echo "No translation changes to commit."
             exit 0
           fi
 
-          # Commit with upstream hash reference
-          git commit -m "sync: merge upstream $UPSTREAM_HASH
+          git commit -m "sync: translate upstream changes
 
-          - Merge result: $MERGE_RESULT
+          - Translated changed .md files
           - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
 
-          # Force push to sync branch (replaces what Copilot agent would have done)
           git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
 
-  # ── Step 3: Create PR and request review ───────────────────────
+  # ── Step 4: Create PR and request review ───────────────────────
   create-pr-and-review:
-    needs: [detect-changes, merge-and-translate]
+    needs: [detect-changes, merge, translate]
+    if: always() && needs.merge.result == 'success'
     runs-on: ubuntu-latest
     env:
       UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
