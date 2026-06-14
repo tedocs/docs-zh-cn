@@ -1,0 +1,247 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1020" font-family="Segoe UI, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="g-upstream" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f6feb"/>
+      <stop offset="100%" stop-color="#388bfd"/>
+    </linearGradient>
+    <linearGradient id="g-job" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#238636"/>
+      <stop offset="100%" stop-color="#2ea043"/>
+    </linearGradient>
+    <linearGradient id="g-pr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a371f7"/>
+      <stop offset="100%" stop-color="#bc8cff"/>
+    </linearGradient>
+    <linearGradient id="g-review" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#da3633"/>
+      <stop offset="100%" stop-color="#f85149"/>
+    </linearGradient>
+    <linearGradient id="g-branch" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a7f37"/>
+      <stop offset="100%" stop-color="#2da44e"/>
+    </linearGradient>
+    <linearGradient id="g-issue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#bf8700"/>
+      <stop offset="100%" stop-color="#d29922"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#8b949e"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#388bfd"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3fb950"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#bc8cff"/>
+    </marker>
+    <marker id="arrow-gold" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="10" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#d29922"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="1020" fill="url(#bg)" rx="12"/>
+
+  <!-- Title -->
+  <text x="450" y="48" text-anchor="middle" fill="#e6edf3" font-size="24" font-weight="700">
+    Vue.js 中文文档同步工作流
+  </text>
+  <text x="450" y="72" text-anchor="middle" fill="#8b949e" font-size="13">
+    tedocs/docs-zh-cn — Automated Sync, Detect, Copilot Agent &amp; Review Pipeline
+  </text>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- Layer 1: Source -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="310" y="98" width="280" height="56" rx="10" fill="url(#g-upstream)" filter="url(#shadow)"/>
+  <text x="450" y="122" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">
+    vuejs/docs : main
+  </text>
+  <text x="450" y="140" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="11">
+    upstream source
+  </text>
+
+  <!-- Arrow: source → autosync -->
+  <line x1="450" y1="154" x2="450" y2="195" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="460" y="180" fill="#8b949e" font-size="10">daily 00:00</text>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- Layer 2: autosync.yml -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="275" y="198" width="350" height="80" rx="10" fill="#1c2128" stroke="#30363d" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="275" y="198" width="350" height="26" rx="10" fill="#238636" opacity="0.2"/>
+  <text x="300" y="216" fill="#3fb950" font-size="12" font-weight="600">
+    autosync.yml
+  </text>
+  <text x="600" y="216" text-anchor="end" fill="#8b949e" font-size="10">
+    cron + workflow_dispatch
+  </text>
+  <text x="450" y="246" text-anchor="middle" fill="#e6edf3" font-size="12">
+    github-forks-sync-action
+  </text>
+  <text x="450" y="264" text-anchor="middle" fill="#8b949e" font-size="10">
+    mirror upstream main to tedocs:upstream (no translation)
+  </text>
+
+  <!-- Arrow: autosync → upstream branch -->
+  <line x1="450" y1="278" x2="450" y2="318" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- Layer 3: Branches -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <rect x="130" y="320" width="180" height="48" rx="8" fill="url(#g-branch)" filter="url(#shadow)"/>
+  <text x="220" y="340" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">
+    upstream
+  </text>
+  <text x="220" y="356" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10">
+    mirror of vuejs/docs
+  </text>
+
+  <rect x="590" y="320" width="180" height="48" rx="8" fill="url(#g-branch)" filter="url(#shadow)"/>
+  <text x="680" y="340" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">
+    sync
+  </text>
+  <text x="680" y="356" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10">
+    translation branch
+  </text>
+
+  <!-- Arrow: upstream → auto-pr (left branch) -->
+  <line x1="310" y1="344" x2="375" y2="394" stroke="#388bfd" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <text x="315" y="378" fill="#388bfd" font-size="10">fetch</text>
+
+  <!-- Arrow: sync → auto-pr (right branch) -->
+  <line x1="590" y1="344" x2="525" y2="394" stroke="#388bfd" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- Layer 4: autopr.yml Jobs -->
+  <!-- ═══════════════════════════════════════════════════ -->
+
+  <!-- Job 1: detect-changes -->
+  <rect x="275" y="398" width="350" height="100" rx="10" fill="#1c2128" stroke="#30363d" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="275" y="398" width="350" height="26" rx="10" fill="#1f6feb" opacity="0.2"/>
+  <text x="300" y="416" fill="#388bfd" font-size="12" font-weight="600">
+    Job 1: detect-changes
+  </text>
+  <text x="600" y="416" text-anchor="end" fill="#8b949e" font-size="10">
+    autopr.yml
+  </text>
+
+  <!-- Step: merge detection -->
+  <rect x="305" y="436" width="290" height="24" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="450" y="453" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="600">
+    1. git merge upstream → sync
+  </text>
+
+  <!-- Arrow: merge → detect -->
+  <line x1="450" y1="460" x2="450" y2="472" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Step: run script -->
+  <rect x="305" y="475" width="290" height="24" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="450" y="492" text-anchor="middle" fill="#e6edf3" font-size="11">
+    2. run auto-pr.js → conflict / clean / no_changes
+  </text>
+
+  <!-- Arrow: Job 1 → Job 2 -->
+  <line x1="450" y1="498" x2="450" y2="530" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="460" y="518" fill="#8b949e" font-size="10">if conflict or clean</text>
+
+  <!-- Job 2: assign-to-copilot -->
+  <rect x="275" y="534" width="350" height="160" rx="10" fill="#1c2128" stroke="#d29922" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="275" y="534" width="350" height="26" rx="10" fill="#d29922" opacity="0.2"/>
+  <text x="300" y="552" fill="#d29922" font-size="12" font-weight="600">
+    Job 2: assign-to-copilot
+  </text>
+  <text x="600" y="552" text-anchor="end" fill="#8b949e" font-size="10">
+    autopr.yml
+  </text>
+
+  <!-- Step: create issue -->
+  <rect x="305" y="572" width="290" height="24" rx="6" fill="#161b22" stroke="#d29922" stroke-width="1"/>
+  <text x="450" y="589" text-anchor="middle" fill="#d29922" font-size="11" font-weight="600">
+    1. gh issue create (auto-sync + copilot)
+  </text>
+
+  <!-- Arrow -->
+  <line x1="450" y1="596" x2="450" y2="608" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Step: assign -->
+  <rect x="305" y="611" width="290" height="24" rx="6" fill="#161b22" stroke="#d29922" stroke-width="1"/>
+  <text x="450" y="628" text-anchor="middle" fill="#e6edf3" font-size="11">
+    2. assign to copilot-swe-agent[bot]
+  </text>
+
+  <!-- Arrow -->
+  <line x1="450" y1="635" x2="450" y2="647" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Step: copilot executes -->
+  <rect x="305" y="650" width="290" height="36" rx="6" fill="#161b22" stroke="#d29922" stroke-width="1"/>
+  <text x="450" y="664" text-anchor="middle" fill="#d29922" font-size="11" font-weight="600">
+    3. Copilot Agent executes
+  </text>
+  <text x="450" y="680" text-anchor="middle" fill="#8b949e" font-size="10">
+    merge + resolve conflicts + translate + PR
+  </text>
+
+  <!-- Arrow: Job 2 → Job 3 -->
+  <line x1="450" y1="694" x2="450" y2="726" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="460" y="714" fill="#8b949e" font-size="10">after PR created</text>
+
+  <!-- Job 3: copilot-review -->
+  <rect x="275" y="730" width="350" height="110" rx="10" fill="#1c2128" stroke="#f85149" stroke-width="1" filter="url(#shadow)"/>
+  <rect x="275" y="730" width="350" height="26" rx="10" fill="#f85149" opacity="0.15"/>
+  <text x="300" y="748" fill="#f85149" font-size="12" font-weight="600">
+    Job 3: copilot-review
+  </text>
+  <text x="600" y="748" text-anchor="end" fill="#8b949e" font-size="10">
+    autopr.yml
+  </text>
+
+  <!-- Step: wait for PR -->
+  <rect x="305" y="768" width="290" height="24" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="450" y="785" text-anchor="middle" fill="#e6edf3" font-size="11">
+    1. poll for PR (sync → main), max 5 min
+  </text>
+
+  <!-- Arrow -->
+  <line x1="450" y1="792" x2="450" y2="804" stroke="#8b949e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Step: request review -->
+  <rect x="305" y="807" width="290" height="24" rx="6" fill="#161b22" stroke="#f85149" stroke-width="1"/>
+  <text x="450" y="824" text-anchor="middle" fill="#f85149" font-size="11" font-weight="600">
+    2. copilot-pull-request-reviewer[bot]
+  </text>
+
+  <!-- Arrow: review → main -->
+  <line x1="450" y1="840" x2="450" y2="878" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Target: main -->
+  <rect x="310" y="882" width="280" height="56" rx="10" fill="url(#g-upstream)" filter="url(#shadow)"/>
+  <text x="450" y="906" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">
+    tedocs/docs-zh-cn : main
+  </text>
+  <text x="450" y="924" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="11">
+    merge commit with review approval
+  </text>
+
+  <!-- Legend -->
+  <rect x="30" y="958" width="840" height="26" rx="6" fill="#161b22"/>
+  <circle cx="55" cy="971" r="5" fill="#1f6feb"/>
+  <text x="65" y="975" fill="#8b949e" font-size="10">Source</text>
+  <circle cx="135" cy="971" r="5" fill="#238636"/>
+  <text x="145" y="975" fill="#8b949e" font-size="10">GitHub Action</text>
+  <circle cx="255" cy="971" r="5" fill="#2da44e"/>
+  <text x="265" y="975" fill="#8b949e" font-size="10">Branch</text>
+  <circle cx="325" cy="971" r="5" fill="#d29922"/>
+  <text x="335" y="975" fill="#8b949e" font-size="10">Copilot Agent</text>
+  <circle cx="440" cy="971" r="5" fill="#f85149"/>
+  <text x="450" y="975" fill="#8b949e" font-size="10">Review</text>
+</svg>

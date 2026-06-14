@@ -1,20 +1,20 @@
-# name: Auto Sync
+name: Auto Sync
 
-# on:
-#   schedule:
-#     - cron: '0 0 * * *' # At 00:00.  https://crontab.guru/
-#   workflow_dispatch: # on button click
+on:
+  schedule:
+    - cron: '0 0 * * *' # At 00:00.  https://crontab.guru/
+  workflow_dispatch: # on button click
 
-# jobs:
-#   sync:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: TobKed/github-forks-sync-action@master
-#         with:
-#           github_token: ${{ secrets.UPSTREAM_SYNC_TOKEN }}
-#           upstream_repository: vuejs/docs
-#           upstream_branch: main
-#           target_repository: vuejs-translations/docs-zh-cn
-#           target_branch: upstream
-#           force: false
-#           tags: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: TobKed/github-forks-sync-action@master
+        with:
+          github_token: ${{ secrets.REPO_ACTION_TOKEN }}
+          upstream_repository: vuejs/docs
+          upstream_branch: main
+          target_repository: tedocs/docs-zh-cn
+          target_branch: upstream
+          force: false
+          tags: false

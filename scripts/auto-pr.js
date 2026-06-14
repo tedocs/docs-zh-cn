@@ -1,6 +1,5 @@
 import SimpleGit from "simple-git";
-import OpenAI from "openai";
-import { readFile, writeFile } from "fs/promises";
+import { appendFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -12,14 +11,21 @@ const UPSTREAM_BRANCH = process.env.UPSTREAM_BRANCH || "main";
 const SYNC_BRANCH = process.env.SYNC_BRANCH || "sync";
 
 const git = SimpleGit(ROOT);
-const ai = new OpenAI({
-  baseURL: "https://models.github.ai/inference",
-  apiKey: process.env.REPO_ACTION_TOKEN,
-});
 
-async function mergeUpstream() {
-  await git.addConfig("user.name", "github-actions[bot]");
-  await git.addConfig("user.email", "github-actions[bot]@users.noreply.github.com");
+// ── Helpers ──────────────────────────────────────────────────────
+
+function setOutput(key, value) {
+  const outputFile = process.env.GITHUB_OUTPUT;
+  if (outputFile) {
+    appendFileSync(outputFile, `${key}=${value}\n`);
+  }
+  console.log(`::set-output name=${key}::${value}`);
+}
+
+// ── Main ─────────────────────────────────────────────────────────
+
+async function main() {
+  await git.fetch("origin");
 
   // Ensure sync branch exists
   const branches = await git.branchLocal();
@@ -30,147 +36,72 @@ async function mergeUpstream() {
     await git.checkout(SYNC_BRANCH);
   }
 
+  // Get upstream hash
+  const upstreamHash = (
+    await git.raw(["rev-parse", "--short", "origin/" + UPSTREAM_BRANCH])
+  ).trim();
+  console.log(`Upstream hash: ${upstreamHash}`);
+
   // Attempt merge
   console.log(`Merging origin/${UPSTREAM_BRANCH} into ${SYNC_BRANCH}...`);
+  let mergeResult;
+  let conflictFiles = [];
+  let changedFiles = [];
+
   try {
     await git.merge([`origin/${UPSTREAM_BRANCH}`], { "--no-edit": null });
     console.log("Merge completed without conflicts.");
-    return false;
+    mergeResult = "clean";
   } catch (err) {
     if (!err.message?.includes("CONFLICT")) {
       throw err;
     }
-    console.log("Merge has conflicts, auto-resolving...");
-    // Accept upstream (theirs) for all conflicted files
-    await git.raw(["checkout", "--theirs", "."]);
-    await git.add(".");
-    await git.commit(`Merge upstream (${UPSTREAM_REPO}@${UPSTREAM_BRANCH}) into sync`, {
-      "--no-edit": null,
-    });
-    console.log("Conflicts resolved.");
-    return true;
+    console.log("Merge has conflicts.");
+
+    // Collect conflicted files
+    const diffOutput = await git.raw([
+      "diff",
+      "--name-only",
+      "--diff-filter=U",
+    ]);
+    conflictFiles = diffOutput.split("\n").filter(Boolean);
+    console.log(`Conflicted files (${conflictFiles.length}):`);
+    conflictFiles.forEach((f) => console.log(`  ${f}`));
+
+    mergeResult = "conflict";
+
+    // Abort merge so the Copilot agent can redo it cleanly
+    await git.merge(["--abort"]);
+    console.log("Merge aborted — Copilot agent will redo the merge.");
   }
-}
 
-async function getChangedFiles() {
-  const diff = await git.diff([
-    "--name-only",
-    "--diff-filter=ACMR",
-    "HEAD~1",
-    "HEAD",
-    "--",
-    "src/**/*.md",
-  ]);
-  const files = diff.split("\n").filter(Boolean);
-  console.log(`Found ${files.length} changed markdown files.`);
-  return files;
-}
+  // If merge was clean, detect changed .md files
+  if (mergeResult === "clean") {
+    const diff = await git.diff([
+      "--name-only",
+      "--diff-filter=ACMR",
+      "HEAD~1",
+      "HEAD",
+      "--",
+      "src/**/*.md",
+    ]);
+    changedFiles = diff.split("\n").filter(Boolean);
+    console.log(`Changed markdown files (${changedFiles.length}):`);
+    changedFiles.forEach((f) => console.log(`  ${f}`));
 
-async function translateContent(englishContent, conventions) {
-  const response = await ai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content: conventions,
-      },
-      {
-        role: "user",
-        content:
-          "Translate the following Vue.js documentation markdown from English to Chinese. " +
-          "Follow the translation conventions strictly. " +
-          "Preserve ALL markdown formatting, code blocks, frontmatter, and links exactly. " +
-          "Only translate the natural language text. " +
-          "Keep code comments in code blocks as-is unless they are documentation prose. " +
-          "Output ONLY the translated content, no explanations.\n\n" +
-          englishContent,
-      },
-    ],
-  });
-
-  let text = response.choices?.[0]?.message?.content || "";
-  // Strip markdown code fences if the model wraps its output
-  text = text.replace(/^```(?:markdown)?\n/, "").replace(/\n```$/, "");
-  return text;
-}
-
-async function translateFiles(files) {
-  const conventionsPath = resolve(ROOT, ".claude/skills/vuejs-docs-zh-cn/SKILL.md");
-  const conventions = await readFile(conventionsPath, "utf-8");
-
-  let translated = 0;
-  let failed = 0;
-
-  for (const file of files) {
-    const filePath = resolve(ROOT, file);
-    let content;
-    try {
-      content = await readFile(filePath, "utf-8");
-    } catch {
-      console.log(`  Skip (not found): ${file}`);
-      continue;
-    }
-
-    if (content.trim().length < 10) {
-      console.log(`  Skip (too short): ${file}`);
-      continue;
-    }
-
-    console.log(`  Translating: ${file}`);
-    try {
-      const result = await translateContent(content, conventions);
-      if (!result) {
-        console.log(`    ERROR: empty response`);
-        failed++;
-        continue;
-      }
-      await writeFile(filePath, result, "utf-8");
-      translated++;
-      console.log("    OK");
-    } catch (err) {
-      console.log(`    ERROR: ${err.message}`);
-      failed++;
+    if (changedFiles.length === 0 && conflictFiles.length === 0) {
+      mergeResult = "no_changes";
+      console.log("No content changes detected.");
     }
   }
 
-  console.log(`\nTranslation complete: ${translated} succeeded, ${failed} failed`);
-  return { translated, failed };
-}
+  // Write outputs
+  setOutput("merge_result", mergeResult);
+  setOutput("conflict_files", conflictFiles.join(","));
+  setOutput("changed_files", changedFiles.join(","));
+  setOutput("upstream_hash", upstreamHash);
 
-async function commitAndPush() {
-  await git.add(".");
-  const status = await git.status();
-
-  if (status.staged.length === 0) {
-    console.log("No changes to commit.");
-    return false;
-  }
-
-  await git.commit("docs: translate upstream sync content to Chinese");
-  await git.push("origin", `HEAD:${SYNC_BRANCH}`);
-  console.log("Translations pushed.");
-  return true;
-}
-
-// ── Main ──────────────────────────────────────────────────────────
-async function main() {
-  await git.fetch("origin");
-
-  const hadConflicts = await mergeUpstream();
-  const changedFiles = await getChangedFiles();
-
-  if (changedFiles.length === 0) {
-    console.log("No content files changed. Done.");
-    return;
-  }
-
-  const { translated } = await translateFiles(changedFiles);
-
-  if (translated > 0) {
-    await commitAndPush();
-  } else {
-    console.log("No successful translations. Skipping push.");
-  }
+  console.log(`\nResult: merge_result=${mergeResult}`);
 }
 
 main().catch((err) => {
