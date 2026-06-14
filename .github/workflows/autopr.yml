@@ -83,27 +83,29 @@ jobs:
           fi
 
           # Write issue body
-          {
-            printf '## 任务：同步上游并翻译\n\n'
-            printf '上游 %s 的最新变更需要同步到 sync 分支。\n\n' '${{ env.UPSTREAM_REPO }}'
-            printf '### 状态\n'
-            printf '- 合并结果：%s\n' "$MERGE_RESULT"
-            printf '- 上游 hash：%s\n\n' "$UPSTREAM_HASH"
-            echo -e "### 冲突文件\n${conflict_list}\n"
-            echo -e "### 变更文件\n${changed_list}\n"
-            printf '### 执行步骤\n\n'
-            printf '1. `git checkout sync && git fetch origin && git merge origin/upstream`\n'
-            printf '2. 如有冲突，读取冲突文件中的 OURS（中文翻译）和 THEIRS（英文原文），保留已有中文翻译，对新增/变更英文内容翻译为中文\n'
-            printf '3. 对变更的 `src/**/*.md` 文件进行翻译\n'
-            printf '4. **翻译必须遵循以下约定**：\n'
-            printf '   - `.claude/skills/vuejs-docs-zh-cn/SKILL.md`（主约定）\n'
-            printf '   - `.claude/skills/vuejs-docs-zh-cn/references/terminology.md`（术语表）\n'
-            printf '   - `.claude/skills/vuejs-docs-zh-cn/references/formatting.md`（格式规范）\n'
-            printf '   - `.claude/skills/vuejs-docs-zh-cn/references/guidelines.md`（翻译指南）\n'
-            printf '5. commit + push to sync branch\n'
-            printf '6. 创建 PR（sync → main），标签：`从英文版同步`、`请使用 merge commit 合并`\n'
-            printf '7. PR 创建后，添加标签 `copilot-review-needed` 以触发自动 review\n'
-          } > /tmp/issue_body.md
+          cat > /tmp/issue_body.md <<ISSUE_EOF
+          ## 任务：同步上游并翻译
+          上游 ${{ env.UPSTREAM_REPO }} 的最新变更需要同步到 sync 分支。
+          ### 状态
+          - 合并结果：$MERGE_RESULT
+          - 上游 hash：$UPSTREAM_HASH
+          ### 冲突文件
+          $conflict_list
+          ### 变更文件
+          $changed_list
+          ### 执行步骤
+          1. \`git checkout sync && git fetch origin && git merge origin/upstream\`
+          2. 如有冲突，读取冲突文件中的 OURS（中文翻译）和 THEIRS（英文原文），保留已有中文翻译，对新增/变更英文内容翻译为中文
+          3. 对变更的 \`src/**/*.md\` 文件进行翻译
+          4. **翻译必须遵循以下约定**：
+          \`.claude/skills/vuejs-docs-zh-cn/SKILL.md\`（主约定）
+          \`.claude/skills/vuejs-docs-zh-cn/references/terminology.md\`（术语表）
+          \`.claude/skills/vuejs-docs-zh-cn/references/formatting.md\`（格式规范）
+          \`.claude/skills/vuejs-docs-zh-cn/references/guidelines.md\`（翻译指南）
+          5. commit + push to sync branch
+          6. 创建 PR（sync → main），标签：\`从英文版同步\`、\`请使用 merge commit 合并\`
+          7. PR 创建后，添加标签 \`copilot-review-needed\` 以触发自动 review
+          ISSUE_EOF
 
           issue_url=$(gh issue create \
             --repo "${{ github.repository }}" \
