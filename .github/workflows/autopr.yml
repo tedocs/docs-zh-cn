@@ -26,6 +26,7 @@ jobs:
       upstream_hash: ${{ steps.detect.outputs.upstream_hash }}
     env:
       GITHUB_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
+      UPSTREAM_BRANCH: upstream
     steps:
       - uses: actions/checkout@v4
         with:
