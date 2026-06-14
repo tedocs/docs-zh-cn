@@ -36,8 +36,9 @@ jobs:
 
       - name: Restore scripts from main
         run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- scripts/auto-pr.js package.json pnpm-lock.yaml
+          git checkout origin/${{ env.TARGET_BRANCH }} -- scripts/merge-upstream-to-sync.js package.json pnpm-lock.yaml
 
+      - uses: oven-sh/setup-bun@v2
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -47,7 +48,7 @@ jobs:
 
       - name: Detect changes
         id: detect
-        run: node scripts/auto-pr.js
+        run: bun scripts/merge-upstream-to-sync.js
 
   # ── Step 2: Merge upstream ─────────────────────────────────────
   merge:
@@ -58,8 +59,6 @@ jobs:
       merge_status: ${{ steps.merge.outputs.merge_status }}
     env:
       MERGE_RESULT: ${{ needs.detect-changes.outputs.merge_result }}
-      CONFLICT_FILES: ${{ needs.detect-changes.outputs.conflict_files }}
-      CHANGED_FILES: ${{ needs.detect-changes.outputs.changed_files }}
       UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
     steps:
       - uses: actions/checkout@v4
@@ -68,8 +67,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.REPO_ACTION_TOKEN }}
 
-      - name: Install Copilot CLI
-        run: npm install -g @github/copilot
+      - uses: oven-sh/setup-bun@v2
 
       - name: Merge upstream
         id: merge
@@ -84,41 +82,17 @@ jobs:
             echo "merge_status=clean" >> "$GITHUB_OUTPUT"
           else
             echo "merge_status=conflict" >> "$GITHUB_OUTPUT"
-            echo "Merge has conflicts, Copilot CLI will resolve them."
+            echo "Merge has conflicts, 1-merge-job.js will resolve them."
           fi
 
-      - name: Resolve conflicts with Copilot CLI
+      - name: Restore merge script from main
         if: steps.merge.outputs.merge_status == 'conflict'
-        env:
-          # Requires Fine-Grained PAT with "Copilot Requests" permission
-          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
-          # List conflicted files
-          conflict_files=$(git diff --name-only --diff-filter=U)
-          echo "Conflicted files:"
-          echo "$conflict_files"
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/1-merge-job.js
 
-          # Let Copilot CLI resolve conflicts
-          copilot -p "
-          You are working on the sync branch of a Vue.js Chinese translation repository.
-          There are merge conflicts from merging the upstream English docs (vuejs/docs).
-
-          Your task:
-          1. For each conflicted file, read the conflict markers (<<<<<<<, =======, >>>>>>>)
-          2. Keep existing Chinese translations (OURS) as-is
-          3. Translate any NEW or CHANGED English content (THEIRS) into Chinese
-          4. Write the resolved file without conflict markers
-
-          Translation conventions to follow:
-          - $(cat .claude/skills/vuejs-docs-zh-cn/references/terminology.md)
-          - $(cat .claude/skills/vuejs-docs-zh-cn/references/formatting.md)
-          - $(cat .claude/skills/vuejs-docs-zh-cn/references/guidelines.md)
-
-          Conflicted files:
-          $conflict_files
-
-          After resolving all conflicts, stage the resolved files with git add.
-          " --allow-all
+      - name: Resolve conflicts with 1-merge-job.js
+        if: steps.merge.outputs.merge_status == 'conflict'
+        run: bun .github/scripts/auto-pr/1-merge-job.js
 
       - name: Commit merge
         run: |
@@ -136,13 +110,12 @@ jobs:
 
           git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
 
-  # ── Step 3: Translate changed .md files ───────────────────────
+  # ── Step 3: Translate conflict blocks via Copilot CLI ──────────
   translate:
     needs: [detect-changes, merge]
-    if: needs.merge.outputs.merge_status == 'clean' && needs.detect-changes.outputs.changed_files != ''
+    if: needs.merge.outputs.merge_status == 'conflict'
     runs-on: ubuntu-latest
     env:
-      CHANGED_FILES: ${{ needs.detect-changes.outputs.changed_files }}
       UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
     steps:
       - uses: actions/checkout@v4
@@ -151,72 +124,21 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.REPO_ACTION_TOKEN }}
 
+      - uses: oven-sh/setup-bun@v2
+
       - name: Install Copilot CLI
-        run: npm install -g @github/copilot
+        run: bun install -g @github/copilot
 
-      - name: Restore translation conventions from main
+      - name: Restore scripts and conventions from main
         run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .claude/skills/vuejs-docs-zh-cn/
+          git checkout origin/${{ env.TARGET_BRANCH }} -- \
+            .github/scripts/auto-pr/2-translate-job.js \
+            .claude/skills/vuejs-docs-zh-cn/
 
-      - name: Translate changed .md files with Copilot CLI
+      - name: Translate with Copilot CLI
         env:
-          # Requires Fine-Grained PAT with "Copilot Requests" permission
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: |
-          IFS=',' read -ra files <<< "$CHANGED_FILES"
-          for file in "${files[@]}"; do
-            # Only process .md files in src/ directory
-            if [[ "$file" == src/* && "$file" == *.md ]]; then
-              echo "Translating: $file"
-              copilot -p "
-              You are a professional Vue.js documentation translator (English → Simplified Chinese).
-
-              Target file: $file
-
-              ## Scope
-
-              Only translate Markdown (.md) files. This file IS a Markdown file — proceed with translation.
-
-              ## What to translate
-
-              1. All English prose content (paragraphs, headings, list items, table cells).
-              2. VitePress custom container content — these blocks MUST be translated:
-                 - \`\`\`:::tip ... :::\`\`\`
-                 - \`\`\`:::warning ... :::\`\`\`
-                 - \`\`\`:::danger ... :::\`\`\`
-                 - \`\`\`:::info ... :::\`\`\`
-                 The text inside these containers is natural language and should be translated to Chinese.
-
-              ## What NOT to translate
-
-              1. Fenced code blocks — do NOT modify content inside:
-                 - \`\`\`vue\`\`\` blocks (Vue SFC code snippets) — keep entirely as-is, including comments
-                 - \`\`\`js\`\`\`, \`\`\`ts\`\`\`, \`\`\`html\`\`\`, \`\`\`css\`\`\`, \`\`\`sh\`\`\` and any other language blocks
-                 - Generic \`\`\` blocks without a language tag
-              2. Inline code (backtick-wrapped text)
-              3. URLs and link targets
-              4. Code identifiers (component names, API names, props, etc.)
-              5. Frontmatter — keep as-is except translate the \`title\` and \`description\` fields
-
-              ## Translation conventions
-
-              You MUST strictly follow these conventions:
-
-              ### Terminology
-              $(cat .claude/skills/vuejs-docs-zh-cn/references/terminology.md)
-
-              ### Formatting
-              $(cat .claude/skills/vuejs-docs-zh-cn/references/formatting.md)
-
-              ### Guidelines
-              $(cat .claude/skills/vuejs-docs-zh-cn/references/guidelines.md)
-
-              ## Output
-
-              Write the translated file back to $file. Ensure the line count stays as close to the original as possible (line-by-line correspondence).
-              " --allow-all
-            fi
-          done
+        run: bun .github/scripts/auto-pr/2-translate-job.js
 
       - name: Commit and push translations
         run: |
@@ -227,17 +149,56 @@ jobs:
             exit 0
           fi
 
-          git commit -m "sync: translate upstream changes
+          git commit -m "sync: translate conflict blocks
 
           - Translated changed .md files
           - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
 
           git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
 
-  # ── Step 4: Create PR and request review ───────────────────────
-  create-pr-and-review:
+  # ── Step 4: Apply translations to source files ────────────────
+  apply:
     needs: [detect-changes, merge, translate]
-    if: always() && needs.merge.result == 'success'
+    if: needs.merge.outputs.merge_status == 'conflict'
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SYNC_BRANCH }}
+          fetch-depth: 0
+          token: ${{ secrets.REPO_ACTION_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Restore apply script from main
+        run: |
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/3-apply-job.js
+
+      - name: Apply translations
+        if: hashFiles('.github/scripts/auto-pr/done-translation.json') != ''
+        run: bun .github/scripts/auto-pr/3-apply-job.js
+
+      - name: Commit and push applied translations
+        run: |
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No applied translation changes to commit."
+            exit 0
+          fi
+
+          git commit -m "sync: apply translations to source files
+
+          - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
+
+          git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
+
+  # ── Step 5: Create PR and request review ───────────────────────
+  create-pr-and-review:
+    needs: [detect-changes, merge, translate, apply]
+    if: always() && needs.merge.result == 'success' && needs.translate.result != 'failure' && needs.apply.result != 'failure'
     runs-on: ubuntu-latest
     env:
       UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}

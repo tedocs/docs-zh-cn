@@ -12,8 +12,7 @@
     "lint": "zhlint \"src/{api,about,guide,sponsor,translations,tutorial}/**/*.md\"",
     "clean": "rm -rf .vitepress/dist",
     "sync": "node scripts/sync.js",
-    "auto-pr": "node scripts/auto-pr.js",
-    "svg2png": "node scripts/svg2png.cjs",
+    "auto-pr": "node scripts/merge-upstream-to-sync.js",
     "preinstall": "npx only-allow pnpm",
     "type": "vue-tsc --noEmit"
   },

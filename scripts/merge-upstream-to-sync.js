@@ -6,7 +6,6 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
-const UPSTREAM_REPO = "vuejs/docs";
 const UPSTREAM_BRANCH = process.env.UPSTREAM_BRANCH || "main";
 const SYNC_BRANCH = process.env.SYNC_BRANCH || "sync";
 
@@ -59,11 +58,7 @@ async function main() {
     console.log("Merge has conflicts.");
 
     // Collect conflicted files
-    const diffOutput = await git.raw([
-      "diff",
-      "--name-only",
-      "--diff-filter=U",
-    ]);
+    const diffOutput = await git.raw(["diff", "--name-only", "--diff-filter=U"]);
     conflictFiles = diffOutput.split("\n").filter(Boolean);
     console.log(`Conflicted files (${conflictFiles.length}):`);
     conflictFiles.forEach((f) => console.log(`  ${f}`));
