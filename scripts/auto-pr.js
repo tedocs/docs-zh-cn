@@ -75,24 +75,22 @@ async function main() {
     console.log("Merge aborted — Copilot agent will redo the merge.");
   }
 
-  // If merge was clean, detect changed .md files
-  if (mergeResult === "clean") {
-    const diff = await git.diff([
-      "--name-only",
-      "--diff-filter=ACMR",
-      "HEAD~1",
-      "HEAD",
-      "--",
-      "src/**/*.md",
-    ]);
-    changedFiles = diff.split("\n").filter(Boolean);
-    console.log(`Changed markdown files (${changedFiles.length}):`);
-    changedFiles.forEach((f) => console.log(`  ${f}`));
+  // Detect changed .md files by comparing sync and upstream branches
+  const diff = await git.diff([
+    "--name-only",
+    "--diff-filter=ACMR",
+    SYNC_BRANCH,
+    `origin/${UPSTREAM_BRANCH}`,
+    "--",
+    "src/**/*.md",
+  ]);
+  changedFiles = diff.split("\n").filter(Boolean);
+  console.log(`Changed markdown files (${changedFiles.length}):`);
+  changedFiles.forEach((f) => console.log(`  ${f}`));
 
-    if (changedFiles.length === 0 && conflictFiles.length === 0) {
-      mergeResult = "no_changes";
-      console.log("No content changes detected.");
-    }
+  if (mergeResult === "clean" && changedFiles.length === 0 && conflictFiles.length === 0) {
+    mergeResult = "no_changes";
+    console.log("No content changes detected.");
   }
 
   // Write outputs
