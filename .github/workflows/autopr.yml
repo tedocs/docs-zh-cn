@@ -89,8 +89,8 @@ jobs:
             printf '### 状态\n'
             printf '- 合并结果：%s\n' "$MERGE_RESULT"
             printf '- 上游 hash：%s\n\n' "$UPSTREAM_HASH"
-            printf '### 冲突文件\n%s\n\n' "$conflict_list"
-            printf '### 变更文件\n%s\n\n' "$changed_list"
+            echo -e "### 冲突文件\n${conflict_list}\n"
+            echo -e "### 变更文件\n${changed_list}\n"
             printf '### 执行步骤\n\n'
             printf '1. `git checkout sync && git fetch origin && git merge origin/upstream`\n'
             printf '2. 如有冲突，读取冲突文件中的 OURS（中文翻译）和 THEIRS（英文原文），保留已有中文翻译，对新增/变更英文内容翻译为中文\n'
