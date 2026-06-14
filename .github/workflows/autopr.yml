@@ -48,8 +48,8 @@ jobs:
         id: detect
         run: node scripts/auto-pr.js
 
-  # ── Step 2: Create issue for Copilot coding agent ─────────────
-  assign-to-copilot:
+  # ── Step 2: Merge upstream & translate with Copilot CLI ────────
+  merge-and-translate:
     needs: detect-changes
     if: needs.detect-changes.outputs.merge_result != 'no_changes'
     runs-on: ubuntu-latest
@@ -63,119 +63,196 @@ jobs:
         with:
           ref: ${{ env.SYNC_BRANCH }}
           fetch-depth: 0
+          token: ${{ secrets.REPO_ACTION_TOKEN }}
 
-      - name: Create issue for Copilot agent
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      - name: Merge upstream
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin upstream
+
+          # Attempt merge
+          if git merge origin/upstream --no-edit; then
+            echo "merge_status=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "merge_status=conflict" >> "$GITHUB_OUTPUT"
+            echo "Merge has conflicts, Copilot CLI will resolve them."
+          fi
+
+      - name: Resolve conflicts with Copilot CLI
+        if: steps.merge.outputs.merge_status == 'conflict'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
+        run: |
+          # List conflicted files
+          conflict_files=$(git diff --name-only --diff-filter=U)
+          echo "Conflicted files:"
+          echo "$conflict_files"
+
+          # Let Copilot CLI resolve conflicts
+          copilot -p "
+          You are working on the sync branch of a Vue.js Chinese translation repository.
+          There are merge conflicts from merging the upstream English docs (vuejs/docs).
+
+          Your task:
+          1. For each conflicted file, read the conflict markers (<<<<<<<, =======, >>>>>>>)
+          2. Keep existing Chinese translations (OURS) as-is
+          3. Translate any NEW or CHANGED English content (THEIRS) into Chinese
+          4. Write the resolved file without conflict markers
+
+          Translation conventions to follow:
+          - $(cat .claude/skills/vuejs-docs-zh-cn/references/terminology.md)
+          - $(cat .claude/skills/vuejs-docs-zh-cn/references/formatting.md)
+          - $(cat .claude/skills/vuejs-docs-zh-cn/references/guidelines.md)
+
+          Conflicted files:
+          $conflict_files
+
+          After resolving all conflicts, stage the resolved files with git add.
+          " --allow-all
+
+      - name: Translate changed files with Copilot CLI
+        if: steps.merge.outputs.merge_status == 'clean' && env.CHANGED_FILES != ''
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
+        run: |
+          # Translate each changed .md file in src/
+          IFS=',' read -ra files <<< "$CHANGED_FILES"
+          for file in "${files[@]}"; do
+            # Only process .md files in src/ directory
+            if [[ "$file" == src/* && "$file" == *.md ]]; then
+              echo "Translating: $file"
+              copilot -p "
+              You are translating Vue.js documentation from English to Chinese.
+
+              Read the file at $file and translate all English prose content to Chinese.
+              DO NOT translate:
+              - Code blocks
+              - URLs
+              - Code identifiers (component names, API names, etc.)
+              - Frontmatter (keep as-is except translate title/description)
+
+              Translation conventions:
+              - $(cat .claude/skills/vuejs-docs-zh-cn/references/terminology.md)
+              - $(cat .claude/skills/vuejs-docs-zh-cn/references/formatting.md)
+              - $(cat .claude/skills/vuejs-docs-zh-cn/references/guidelines.md)
+
+              Write the translated file back to $file.
+              " --allow-all
+            fi
+          done
+
+      - name: Commit and push
         env:
           GH_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
         run: |
-          # Build conflict files list
-          if [ -n "$CONFLICT_FILES" ]; then
-            conflict_list=$(echo "$CONFLICT_FILES" | tr ',' '\n' | sed 's/^/- /')
-          else
-            conflict_list="- 无"
+          # Stage all changes
+          git add -A
+
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit after merge/translate."
+            exit 0
           fi
 
-          # Build changed files list
-          if [ -n "$CHANGED_FILES" ]; then
-            changed_list=$(echo "$CHANGED_FILES" | tr ',' '\n' | sed 's/^/- /')
-          else
-            changed_list="- 无"
-          fi
+          # Commit with upstream hash reference
+          git commit -m "sync: merge upstream $UPSTREAM_HASH
 
-          # Write issue body
-          cat > /tmp/issue_body.md <<ISSUE_EOF
-          ## 任务：同步上游并翻译
-          上游 ${{ env.UPSTREAM_REPO }} 的最新变更需要同步到 sync 分支。
-          ### 状态
-          - 合并结果：$MERGE_RESULT
-          - 上游 hash：$UPSTREAM_HASH
-          ### 冲突文件
-          $conflict_list
-          ### 变更文件
-          $changed_list
-          ### 执行步骤
-          1. \`git checkout sync && git fetch origin && git merge origin/upstream\`
-          2. 如有冲突，读取冲突文件中的 OURS（中文翻译）和 THEIRS（英文原文），保留已有中文翻译，对新增/变更英文内容翻译为中文
-          3. 对变更的 \`src/**/*.md\` 文件进行翻译
-          4. **翻译必须遵循以下约定**：
-          \`.claude/skills/vuejs-docs-zh-cn/SKILL.md\`（主约定）
-          \`.claude/skills/vuejs-docs-zh-cn/references/terminology.md\`（术语表）
-          \`.claude/skills/vuejs-docs-zh-cn/references/formatting.md\`（格式规范）
-          \`.claude/skills/vuejs-docs-zh-cn/references/guidelines.md\`（翻译指南）
-          5. commit + push to sync branch
-          6. 创建 PR（sync → main），标签：\`从英文版同步\`、\`请使用 merge commit 合并\`
-          7. PR 创建后，添加标签 \`copilot-review-needed\` 以触发自动 review
-          ISSUE_EOF
+          - Merge result: $MERGE_RESULT
+          - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
 
-          issue_url=$(gh issue create \
-            --repo "${{ github.repository }}" \
-            --title "Sync #${{ env.UPSTREAM_HASH }} — 上游同步与翻译" \
-            --body-file /tmp/issue_body.md \
-            --label "auto-sync" \
-            --label "copilot")
+          # Force push to sync branch (replaces what Copilot agent would have done)
+          git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
 
-          echo "Issue created: $issue_url"
-
-          # Assign Copilot coding agent
-          issue_number=$(echo "$issue_url" | grep -oP '\d+$')
-          gh issue edit "$issue_number" \
-            --repo "${{ github.repository }}" \
-            --add-assignee "copilot-swe-agent[bot]"
-
-          echo "Assigned to copilot-swe-agent"
-
-  # ── Step 3: Copilot review (triggered after PR is created) ────
-  copilot-review:
-    needs: [detect-changes, assign-to-copilot]
+  # ── Step 3: Create PR and request review ───────────────────────
+  create-pr-and-review:
+    needs: [detect-changes, merge-and-translate]
     runs-on: ubuntu-latest
+    env:
+      UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.TARGET_BRANCH }}
+          ref: ${{ env.SYNC_BRANCH }}
           fetch-depth: 0
+          token: ${{ secrets.REPO_ACTION_TOKEN }}
 
-      - name: Wait for PR and request review
+      - name: Create PR
+        id: pr
         env:
           GH_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
         run: |
+          # Check if PR already exists
+          existing_pr=$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --base "${{ env.TARGET_BRANCH }}" \
+            --head "${{ env.SYNC_BRANCH }}" \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || echo "")
+
+          if [ -n "$existing_pr" ]; then
+            echo "PR already exists: #${existing_pr}"
+            echo "pr_number=${existing_pr}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Create new PR
+          pr_url=$(gh pr create \
+            --repo "${{ github.repository }}" \
+            --base "${{ env.TARGET_BRANCH }}" \
+            --head "${{ env.SYNC_BRANCH }}" \
+            --title "Sync #${UPSTREAM_HASH} — upstream merge & translate" \
+            --body "$(cat <<EOF
+          ## Upstream Sync
+
+          - Upstream: \`${{ env.UPSTREAM_REPO }}\` @ \`${UPSTREAM_HASH}\`
+          - Merge result: \`${{ needs.detect-changes.outputs.merge_result }}\`
+
+          ### Changes
+          $(if [ -n "${{ needs.detect-changes.outputs.conflict_files }}" ]; then
+            echo "#### Conflict files (resolved)"
+            echo "${{ needs.detect-changes.outputs.conflict_files }}" | tr ',' '\n' | sed 's/^/- /'
+          fi)
+          $(if [ -n "${{ needs.detect-changes.outputs.changed_files }}" ]; then
+            echo "#### Translated files"
+            echo "${{ needs.detect-changes.outputs.changed_files }}" | tr ',' '\n' | sed 's/^/- /'
+          fi)
+
+          > Automated by [autopr.yml](.github/workflows/autopr.yml)
+          EOF
+          )" \
+            --label "从英文版同步" \
+            --label "请使用 merge commit 合并")
+
+          pr_number=$(echo "$pr_url" | grep -oP '\d+$')
+          echo "Created PR: #${pr_number}"
+          echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
+
+      - name: Request Copilot review
+        env:
+          GH_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
+        run: |
+          pr_number="${{ steps.pr.outputs.pr_number }}"
           repo="${{ github.repository }}"
-          upstream_hash="${{ needs.detect-changes.outputs.upstream_hash }}"
-          max_attempts=60  # Wait up to ~5 minutes
 
-          for i in $(seq 1 $max_attempts); do
-            # Look for an open PR from sync to main with the upstream hash
-            pr_number=$(gh pr list \
-              --repo "$repo" \
-              --base "${{ env.TARGET_BRANCH }}" \
-              --head "${{ env.SYNC_BRANCH }}" \
-              --state open \
-              --json number,title \
-              --jq ".[] | select(.title | contains(\"${upstream_hash}\")) | .number" \
-              2>/dev/null | head -1)
+          # Request Copilot PR reviewer
+          curl -sS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repo}/pulls/${pr_number}/requested_reviewers" \
+            -d '{"reviewers":["copilot-pull-request-reviewer[bot]"]}'
 
-            if [ -n "$pr_number" ]; then
-              echo "Found PR #${pr_number}"
+          # Post review instruction
+          curl -sS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${repo}/issues/${pr_number}/comments" \
+            -d '{"body":"@copilot review\n\nPlease review this automated sync PR:\n1. Translation accuracy per [conventions](https://github.com/'"${repo}"'/blob/main/.claude/skills/vuejs-docs-zh-cn/SKILL.md)\n2. No unintended content changes\n3. Markdown formatting preserved\n4. Code blocks and links intact"}'
 
-              # Request Copilot review
-              curl -sS -X POST \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/${repo}/pulls/${pr_number}/requested_reviewers" \
-                -d '{"reviewers":["copilot-pull-request-reviewer[bot]"]}'
-
-              # Post review instruction comment
-              curl -sS -X POST \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/${repo}/issues/${pr_number}/comments" \
-                -d '{"body":"@copilot review\n\nPlease review this automated sync PR:\n1. Translation accuracy per [conventions](https://github.com/'"${repo}"'/blob/main/.claude/skills/vuejs-docs-zh-cn/SKILL.md)\n2. No unintended content changes\n3. Markdown formatting preserved\n4. Code blocks and links intact"}'
-
-              echo "Review requested on PR #${pr_number}"
-              exit 0
-            fi
-
-            echo "Waiting for PR... (attempt $i/$max_attempts)"
-            sleep 5
-          done
-
-          echo "::warning::Timed out waiting for Copilot agent to create PR"
+          echo "Review requested on PR #${pr_number}"

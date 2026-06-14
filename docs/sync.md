@@ -2,6 +2,11 @@
 
 本文档介绍 `tedocs/docs-zh-cn` 仓库的自动化同步流程，包括上游同步、冲突检测、Copilot agent 翻译、PR 和 Review。
 
+## 先决条件
+
+- 开 issue 功能
+- 创建 `auto-sync`、`copilot` label
+
 ## 流程总览
 
 ![同步工作流](sync-workflow.png)
