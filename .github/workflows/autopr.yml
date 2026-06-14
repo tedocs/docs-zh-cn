@@ -33,6 +33,10 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.REPO_ACTION_TOKEN }}
 
+      - name: Restore scripts from main
+        run: |
+          git checkout origin/${{ env.TARGET_BRANCH }} -- scripts/auto-pr.js package.json pnpm-lock.yaml
+
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
