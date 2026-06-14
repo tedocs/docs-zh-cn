@@ -4,7 +4,7 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "..");
+const ROOT = resolve(__dirname, "..", "..", "..");
 
 const UPSTREAM_BRANCH = process.env.UPSTREAM_BRANCH || "main";
 const SYNC_BRANCH = process.env.SYNC_BRANCH || "sync";
