@@ -36,7 +36,7 @@ jobs:
 
       - name: Restore scripts from main
         run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- scripts/merge-upstream-to-sync.js package.json pnpm-lock.yaml
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/merge-upstream-to-sync.js package.json pnpm-lock.yaml
 
       - uses: oven-sh/setup-bun@v2
       - uses: pnpm/action-setup@v4
@@ -48,7 +48,7 @@ jobs:
 
       - name: Detect changes
         id: detect
-        run: bun scripts/merge-upstream-to-sync.js
+        run: bun .github/scripts/auto-pr/merge-upstream-to-sync.js
 
   # ── Step 2: Merge upstream ─────────────────────────────────────
   merge:
@@ -176,8 +176,17 @@ jobs:
         run: |
           git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/3-apply-job.js
 
+      - name: Check done-translation.json
+        id: check-done
+        run: |
+          if [ -f ".github/scripts/auto-pr/done-translation.json" ]; then
+            echo "done_file_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "done_file_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Apply translations
-        if: hashFiles('.github/scripts/auto-pr/done-translation.json') != ''
+        if: steps.check-done.outputs.done_file_exists == 'true'
         run: bun .github/scripts/auto-pr/3-apply-job.js
 
       - name: Commit and push applied translations
@@ -198,7 +207,12 @@ jobs:
   # ── Step 5: Create PR and request review ───────────────────────
   create-pr-and-review:
     needs: [detect-changes, merge, translate, apply]
-    if: always() && needs.merge.result == 'success' && needs.translate.result != 'failure' && needs.apply.result != 'failure'
+    if: |
+      always() &&
+      needs.merge.result == 'success' &&
+      needs.translate.result != 'failure' &&
+      needs.apply.result != 'failure' &&
+      needs.apply.outputs.done_file_exists == 'true'
     runs-on: ubuntu-latest
     env:
       UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
