@@ -16,14 +16,16 @@ env:
   TARGET_BRANCH: main
 
 jobs:
-  # ── Step 1: Detect merge status & changed files ────────────────
-  detect-changes:
+  # ── Sync: detect → merge → translate → apply (single runner) ──
+  sync-merge-translate-apply:
     runs-on: ubuntu-latest
     outputs:
       merge_result: ${{ steps.detect.outputs.merge_result }}
+      merge_status: ${{ steps.merge.outputs.merge_status }}
       conflict_files: ${{ steps.detect.outputs.conflict_files }}
       changed_files: ${{ steps.detect.outputs.changed_files }}
       upstream_hash: ${{ steps.detect.outputs.upstream_hash }}
+      done_file_exists: ${{ steps.check-done.outputs.done_file_exists }}
     env:
       GITHUB_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
       UPSTREAM_BRANCH: upstream
@@ -34,50 +36,42 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.REPO_ACTION_TOKEN }}
 
-      - name: Restore scripts from main
-        run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/1-detect-changes-job.js package.json pnpm-lock.yaml
-
       - uses: oven-sh/setup-bun@v2
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
-      - run: pnpm install --no-frozen-lockfile
 
+      # Restore all scripts from main (one-time, persists across steps)
+      - name: Restore scripts from main
+        run: |
+          git checkout origin/${{ env.TARGET_BRANCH }} -- \
+            .github/scripts/auto-pr/ \
+            .claude/skills/vuejs-docs-zh-cn/ \
+            package.json \
+            pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: |
+          pnpm install --no-frozen-lockfile
+          bun install -g @github/copilot
+
+      # ── 1. Detect changes ──
       - name: Detect changes
         id: detect
         run: bun .github/scripts/auto-pr/1-detect-changes-job.js
 
-  # ── Step 2: Merge upstream ─────────────────────────────────────
-  merge:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.merge_result != 'no_changes'
-    runs-on: ubuntu-latest
-    outputs:
-      merge_status: ${{ steps.merge.outputs.merge_status }}
-    env:
-      MERGE_RESULT: ${{ needs.detect-changes.outputs.merge_result }}
-      UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.SYNC_BRANCH }}
-          fetch-depth: 0
-          token: ${{ secrets.REPO_ACTION_TOKEN }}
-
-      - uses: oven-sh/setup-bun@v2
-
+      # ── 2. Merge upstream ──
       - name: Merge upstream
         id: merge
+        if: steps.detect.outputs.merge_result != 'no_changes'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git fetch origin upstream
 
-          # Attempt merge
           if git merge origin/upstream --no-edit; then
             echo "merge_status=clean" >> "$GITHUB_OUTPUT"
           else
@@ -85,99 +79,23 @@ jobs:
             echo "Merge has conflicts, 2-merge-job.js will resolve them."
           fi
 
-      - name: Restore merge script from main
-        if: steps.merge.outputs.merge_status == 'conflict'
-        run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/2-merge-job.js
-
       - name: Resolve conflicts with 2-merge-job.js
         if: steps.merge.outputs.merge_status == 'conflict'
         run: bun .github/scripts/auto-pr/2-merge-job.js
 
-      - name: Commit merge
-        run: |
-          git add -A
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit after merge."
-            exit 0
-          fi
-
-          git commit -m "sync: merge upstream $UPSTREAM_HASH
-
-          - Merge result: $MERGE_RESULT
-          - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
-
-          git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
-
-  # ── Step 3: Translate conflict blocks via Copilot CLI ──────────
-  translate:
-    needs: [detect-changes, merge]
-    if: needs.merge.outputs.merge_status == 'conflict'
-    runs-on: ubuntu-latest
-    env:
-      UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.SYNC_BRANCH }}
-          fetch-depth: 0
-          token: ${{ secrets.REPO_ACTION_TOKEN }}
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Install Copilot CLI
-        run: bun install -g @github/copilot
-
-      - name: Restore scripts and conventions from main
-        run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- \
-            .github/scripts/auto-pr/3-translate-job.js \
-            .claude/skills/vuejs-docs-zh-cn/
-
+      # ── 3. Translate conflict blocks ──
       - name: Translate with Copilot CLI
+        id: translate
+        if: steps.merge.outputs.merge_status == 'conflict'
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          UPSTREAM_HASH: ${{ steps.detect.outputs.upstream_hash }}
         run: bun .github/scripts/auto-pr/3-translate-job.js
 
-      - name: Commit and push translations
-        run: |
-          git add -A
-
-          if git diff --cached --quiet; then
-            echo "No translation changes to commit."
-            exit 0
-          fi
-
-          git commit -m "sync: translate conflict blocks
-
-          - Translated changed .md files
-          - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
-
-          git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
-
-  # ── Step 4: Apply translations to source files ────────────────
-  apply:
-    needs: [detect-changes, merge, translate]
-    if: needs.merge.outputs.merge_status == 'conflict'
-    runs-on: ubuntu-latest
-    env:
-      UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.SYNC_BRANCH }}
-          fetch-depth: 0
-          token: ${{ secrets.REPO_ACTION_TOKEN }}
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Restore apply script from main
-        run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/4-apply-job.js
-
+      # ── 4. Apply translations ──
       - name: Check done-translation.json
         id: check-done
+        if: steps.merge.outputs.merge_status == 'conflict'
         run: |
           if [ -f ".github/scripts/auto-pr/done-translation.json" ]; then
             echo "done_file_exists=true" >> "$GITHUB_OUTPUT"
@@ -189,33 +107,37 @@ jobs:
         if: steps.check-done.outputs.done_file_exists == 'true'
         run: bun .github/scripts/auto-pr/4-apply-job.js
 
-      - name: Commit and push applied translations
+      # ── Push once after everything ──
+      - name: Commit and push to sync
+        if: steps.detect.outputs.merge_result != 'no_changes'
+        env:
+          MERGE_RESULT: ${{ steps.detect.outputs.merge_result }}
+          UPSTREAM_HASH: ${{ steps.detect.outputs.upstream_hash }}
         run: |
           git add -A
 
           if git diff --cached --quiet; then
-            echo "No applied translation changes to commit."
+            echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "sync: apply translations to source files
+          git commit -m "sync: merge upstream $UPSTREAM_HASH
 
+          - Merge result: $MERGE_RESULT
           - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
 
           git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
 
-  # ── Step 5: Create PR and request review ───────────────────────
+  # ── Create PR and request review ─────────────────────────────
   create-pr-and-review:
-    needs: [detect-changes, merge, translate, apply]
+    needs: sync-merge-translate-apply
     if: |
       always() &&
-      needs.merge.result == 'success' &&
-      needs.translate.result != 'failure' &&
-      needs.apply.result != 'failure' &&
-      needs.apply.outputs.done_file_exists == 'true'
+      needs.sync-merge-translate-apply.result == 'success' &&
+      needs.sync-merge-translate-apply.outputs.merge_result != 'no_changes'
     runs-on: ubuntu-latest
     env:
-      UPSTREAM_HASH: ${{ needs.detect-changes.outputs.upstream_hash }}
+      UPSTREAM_HASH: ${{ needs.sync-merge-translate-apply.outputs.upstream_hash }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -253,16 +175,16 @@ jobs:
           ## Upstream Sync
 
           - Upstream: \`${{ env.UPSTREAM_REPO }}\` @ \`${UPSTREAM_HASH}\`
-          - Merge result: \`${{ needs.detect-changes.outputs.merge_result }}\`
+          - Merge result: \`${{ needs.sync-merge-translate-apply.outputs.merge_result }}\`
 
           ### Changes
-          $(if [ -n "${{ needs.detect-changes.outputs.conflict_files }}" ]; then
+          $(if [ -n "${{ needs.sync-merge-translate-apply.outputs.conflict_files }}" ]; then
             echo "#### Conflict files (resolved)"
-            echo "${{ needs.detect-changes.outputs.conflict_files }}" | tr ',' '\n' | sed 's/^/- /'
+            echo "${{ needs.sync-merge-translate-apply.outputs.conflict_files }}" | tr ',' '\n' | sed 's/^/- /'
           fi)
-          $(if [ -n "${{ needs.detect-changes.outputs.changed_files }}" ]; then
+          $(if [ -n "${{ needs.sync-merge-translate-apply.outputs.changed_files }}" ]; then
             echo "#### Translated files"
-            echo "${{ needs.detect-changes.outputs.changed_files }}" | tr ',' '\n' | sed 's/^/- /'
+            echo "${{ needs.sync-merge-translate-apply.outputs.changed_files }}" | tr ',' '\n' | sed 's/^/- /'
           fi)
 
           > Automated by [autopr.yml](.github/workflows/autopr.yml)
