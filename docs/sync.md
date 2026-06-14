@@ -40,7 +40,7 @@ graph LR
 
 ### Job 1: detect-changes
 
-Checkout `sync` 分支，运行 `scripts/merge-upstream-to-sync.js` 检测合并状态：
+Checkout `sync` 分支，运行 `scripts/1-detect-changes-job.js` 检测合并状态：
 
 1. 尝试将 `upstream` 合并到 `sync`
 2. 脚本检测合并结果并输出：

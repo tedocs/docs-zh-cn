@@ -36,7 +36,7 @@ jobs:
 
       - name: Restore scripts from main
         run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/merge-upstream-to-sync.js package.json pnpm-lock.yaml
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/1-detect-changes-job.js package.json pnpm-lock.yaml
 
       - uses: oven-sh/setup-bun@v2
       - uses: pnpm/action-setup@v4
@@ -48,7 +48,7 @@ jobs:
 
       - name: Detect changes
         id: detect
-        run: bun .github/scripts/auto-pr/merge-upstream-to-sync.js
+        run: bun .github/scripts/auto-pr/1-detect-changes-job.js
 
   # ── Step 2: Merge upstream ─────────────────────────────────────
   merge:
@@ -82,17 +82,17 @@ jobs:
             echo "merge_status=clean" >> "$GITHUB_OUTPUT"
           else
             echo "merge_status=conflict" >> "$GITHUB_OUTPUT"
-            echo "Merge has conflicts, 1-merge-job.js will resolve them."
+            echo "Merge has conflicts, 2-merge-job.js will resolve them."
           fi
 
       - name: Restore merge script from main
         if: steps.merge.outputs.merge_status == 'conflict'
         run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/1-merge-job.js
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/2-merge-job.js
 
-      - name: Resolve conflicts with 1-merge-job.js
+      - name: Resolve conflicts with 2-merge-job.js
         if: steps.merge.outputs.merge_status == 'conflict'
-        run: bun .github/scripts/auto-pr/1-merge-job.js
+        run: bun .github/scripts/auto-pr/2-merge-job.js
 
       - name: Commit merge
         run: |
@@ -132,13 +132,13 @@ jobs:
       - name: Restore scripts and conventions from main
         run: |
           git checkout origin/${{ env.TARGET_BRANCH }} -- \
-            .github/scripts/auto-pr/2-translate-job.js \
+            .github/scripts/auto-pr/3-translate-job.js \
             .claude/skills/vuejs-docs-zh-cn/
 
       - name: Translate with Copilot CLI
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-        run: bun .github/scripts/auto-pr/2-translate-job.js
+        run: bun .github/scripts/auto-pr/3-translate-job.js
 
       - name: Commit and push translations
         run: |
@@ -174,7 +174,7 @@ jobs:
 
       - name: Restore apply script from main
         run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/3-apply-job.js
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .github/scripts/auto-pr/4-apply-job.js
 
       - name: Check done-translation.json
         id: check-done
@@ -187,7 +187,7 @@ jobs:
 
       - name: Apply translations
         if: steps.check-done.outputs.done_file_exists == 'true'
-        run: bun .github/scripts/auto-pr/3-apply-job.js
+        run: bun .github/scripts/auto-pr/4-apply-job.js
 
       - name: Commit and push applied translations
         run: |
