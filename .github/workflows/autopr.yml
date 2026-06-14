@@ -65,6 +65,10 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.REPO_ACTION_TOKEN }}
 
+      - name: Restore convention files from main
+        run: |
+          git checkout origin/${{ env.TARGET_BRANCH }} -- .claude/skills/vuejs-docs-zh-cn/
+
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
 
@@ -87,7 +91,8 @@ jobs:
       - name: Resolve conflicts with Copilot CLI
         if: steps.merge.outputs.merge_status == 'conflict'
         env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
+          # Requires Fine-Grained PAT with "Copilot Requests" permission
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
           # List conflicted files
           conflict_files=$(git diff --name-only --diff-filter=U)
@@ -119,7 +124,8 @@ jobs:
       - name: Translate changed files with Copilot CLI
         if: steps.merge.outputs.merge_status == 'clean' && env.CHANGED_FILES != ''
         env:
-          COPILOT_GITHUB_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
+          # Requires Fine-Grained PAT with "Copilot Requests" permission
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         run: |
           # Translate each changed .md file in src/
           IFS=',' read -ra files <<< "$CHANGED_FILES"
