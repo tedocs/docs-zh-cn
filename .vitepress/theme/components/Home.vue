@@ -336,6 +336,10 @@ html:not(.dark) .accent,
   background-color: transparent;
 }
 
+#highlights .vt-box h2::first-letter{
+  color: var(--vt-c-green);
+}
+
 #spsrs {
   max-width: 900px;
   margin: 0px auto;

@@ -18,12 +18,13 @@ import {
 const nav: ThemeConfig['nav'] = [
   {
     text: '文档',
-    activeMatch: `^/(guide|style-guide|cookbook|examples)/`,
+    activeMatch: `^/(guide|tutorial|examples|api|glossary|error-reference)/`,
     items: [
+      { text: '快速上手', link: '/guide/quick-start' },
       { text: '深度指南', link: '/guide/introduction' },
       { text: '互动教程', link: '/tutorial/' },
       { text: '示例', link: '/examples/' },
-      { text: '快速上手', link: '/guide/quick-start' },
+      { text: 'API', link: '/api/' },
       // { text: '风格指南', link: '/style-guide/' },
       { text: '术语表', link: '/glossary/' },
       { text: '错误码参照表', link: '/error-reference/' },
