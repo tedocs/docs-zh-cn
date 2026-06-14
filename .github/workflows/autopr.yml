@@ -65,10 +65,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.REPO_ACTION_TOKEN }}
 
-      - name: Restore convention files from main
-        run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- .claude/skills/vuejs-docs-zh-cn/
-
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
 
