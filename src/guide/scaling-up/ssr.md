@@ -194,9 +194,9 @@ server.get('/', (req, res) => {
 
 此外，为了在浏览器中加载客户端文件，我们还需要：
 
-1. 在 `server.js` 中添加 `server.use(express.static('.'))` 来托管客户端文件。
-2. 将 `<script type="module" src="/client.js"></script>` 添加到 HTML 外壳以加载客户端入口文件。
-3. 通过在 HTML 外壳中添加 [Import Map](https://github.com/WICG/import-maps) 以支持在浏览器中使用 `import * from 'vue'`。
+1. Serve client files by adding `server.use(express.static('.'))` in `server.js`.
+2. Load the client entry by adding `<script type="module" src="/client.js"></script>` to the HTML shell.
+3. Support usage like `import * from 'vue'` in the browser by adding an [Import Map](https://html.spec.whatwg.org/multipage/webappapis.html#import-maps) to the HTML shell.
 
 [在 StackBlitz 上尝试完整的示例](https://stackblitz.com/fork/vue-ssr-example?file=index.js)。按钮现在可以交互了！
 
@@ -226,13 +226,13 @@ server.get('/', (req, res) => {
 
 ### Vite SSR {#vite-ssr}
 
-Vite 提供了内置的 [Vue 服务端渲染支持](https://cn.vitejs.dev/guide/ssr.html)，但它在设计上是偏底层的。如果你想要直接使用 Vite，可以看看 [vite-plugin-ssr](https://vite-plugin-ssr.com/)，一个帮你抽象掉许多复杂细节的社区插件。
+Vite provides built-in [support for Vue server-side rendering](https://vite.dev/guide/ssr.html), but it is intentionally low-level. If you wish to go directly with Vite, check out [vite-plugin-ssr](https://vite-plugin-ssr.com/), a community plugin that abstracts away many challenging details for you.
 
 你也可以在[这里](https://github.com/vitejs/vite-plugin-vue/tree/main/playground/ssr-vue)查看一个使用手动配置的 Vue + Vite SSR 的示例项目，以它作为基础来构建。请注意，这种方式只有在你有丰富的 SSR 和构建工具经验，并希望对应用的架构做深入的定制时才推荐使用。
 
 ## 书写 SSR 友好的代码 {#writing-ssr-friendly-code}
 
-无论你的构建配置或顶层框架的选择如何，下面的原则在所有 Vue SSR 应用中都适用。
+Vite provides built-in [support for Vue server-side rendering](https://vite.dev/guide/ssr.html), but it is intentionally low-level. If you wish to go directly with Vite, check out [vite-plugin-ssr](https://vite-plugin-ssr.com/), a community plugin that abstracts away many challenging details for you.
 
 ### 服务端的响应性 {#reactivity-on-the-server}
 

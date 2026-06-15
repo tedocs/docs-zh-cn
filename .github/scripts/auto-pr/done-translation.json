@@ -1,0 +1,442 @@
+[
+  {
+    "current": "## 版权声明\n\n<a rel=\"license\" href=\"http://creativecommons.org/licenses/by-nc-sa/4.0/\"><img alt=\"知识共享许可协议\" style=\"border-width:0\" src=\"https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png\" /></a><br />本作品采用<a rel=\"license\" href=\"http://creativecommons.org/licenses/by-nc-sa/4.0/\">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议  (CC BY-NC-SA 4.0) </a>进行许可。",
+    "incoming": "If changes need to be made for the theme, check out the [instructions for developing the theme alongside the docs](https://github.com/vuejs/vue-theme#developing-with-real-content).",
+    "file": "README.md",
+    "lines": [
+      53,
+      53
+    ],
+    "review": "If changes need to be made for the theme, check out the [instructions for developing the theme alongside the docs](https://github.com/vuejs/vue-theme#developing-with-real-content)."
+  },
+  {
+    "current": "该项目要求 Node.js 为 `v18` 或更高版本。并且建议启用 corepack：",
+    "incoming": "This project requires Node.js to be `v20` or higher. And it is recommended to enable corepack:",
+    "file": "README.md",
+    "lines": [
+      31,
+      31
+    ],
+    "review": "This project requires Node.js to be `v20` or higher. And it is recommended to enable corepack:"
+  },
+  {
+    "current": "对于如何参与当地的 Vue 社区，如果你有任何问题，请联系 [@Vuejs_Events](https://www.twitter.com/vuejs_events)！",
+    "incoming": "If you have any questions on how you can get more involved with your local Vue community, reach out on Twitter at [@vuejs_events](https://x.com/vuejs_events)!",
+    "file": "src/about/community-guide.md",
+    "lines": [
+      99,
+      99
+    ],
+    "review": "If you have any questions on how you can get more involved with your local Vue community, reach out on Twitter at [@vuejs_events](https://x.com/vuejs_events)!"
+  },
+  {
+    "current": "- [Discord 聊天室](https://discord.com/invite/vue)：一个 Vue 开发者相互认识和实时聊天的地方。\n- [论坛](https://forum.vuejs.org/)：咨询与 Vue 及其生态的相关问题的最佳地点。\n- [DEV 社区](https://dev.to/t/vue)：在 Dev.to 分享与讨论 Vue 的相关话题。\n- [Meetup](https://events.vuejs.org/meetups)：想在当地找到像你一样的 Vue.js 爱好者吗？有兴趣成为社区领袖吗？这里就有你所需要的支持和帮助！\n- [GitHub](https://github.com/vuejs)：如果你想报告 bug 或者提出新特性需求，欢迎来 GitHub 提交 issue。我们也非常欢迎 pull request！\n- [Twitter 社区 (非官方)](https://twitter.com/i/communities/1516368750634840064)：一个 Twitter 社区，在那里你可以认识其他 Vue 爱好者、获得帮助或讨论 Vue 的相关话题。",
+    "incoming": "- [Discord Chat](https://discord.com/invite/vue): A place for Vue devs to meet and chat in real time.\n- [Forum](https://forum.vuejs.org/): The best place to ask questions and get answers about Vue and its ecosystem.\n- [DEV Community](https://dev.to/t/vue): Share and discuss Vue related topics on Dev.to.\n- [Meetups](https://events.vuejs.org/meetups): Want to find local Vue enthusiasts like yourself? Interested in becoming a community leader? We have the help and support you need right here!\n- [GitHub](https://github.com/vuejs): If you have a bug to report or feature to request, that's what the GitHub issues are for. Please respect the rules specified in each repository's issue template.\n- [Twitter Community (unofficial)](https://x.com/i/communities/1516368750634840064): A Twitter community, where you can meet other Vue enthusiasts, get help, or just chat about Vue.",
+    "file": "src/about/community-guide.md",
+    "lines": [
+      33,
+      38
+    ],
+    "review": "- [Discord Chat](https://discord.com/invite/vue): A place for Vue devs to meet and chat in real time.\n- [Forum](https://forum.vuejs.org/): The best place to ask questions and get answers about Vue and its ecosystem.\n- [DEV Community](https://dev.to/t/vue): Share and discuss Vue related topics on Dev.to.\n- [Meetups](https://events.vuejs.org/meetups): Want to find local Vue enthusiasts like yourself? Interested in becoming a community leader? We have the help and support you need right here!\n- [GitHub](https://github.com/vuejs): If you have a bug to report or feature to request, that's what the GitHub issues are for. Please respect the rules specified in each repository's issue template.\n- [Twitter Community (unofficial)](https://x.com/i/communities/1516368750634840064): A Twitter community, where you can meet other Vue enthusiasts, get help, or just chat about Vue."
+  },
+  {
+    "current": "- 关注我们的[官方 Twitter 账号](https://twitter.com/vuejs)。\n- 关注我们的[团队成员](./team)的 Twitter 或 GitHub 账号。\n- 关注 [RFC 讨论](https://github.com/vuejs/rfcs)。\n- 订阅[官方博客](https://blog.vuejs.org/)。",
+    "incoming": "- Follow our [official Twitter account](https://x.com/vuejs).\n- Follow our [team members](./team) on Twitter or GitHub.\n- Follow the [RFC discussions](https://github.com/vuejs/rfcs).\n- Subscribe to the [official blog](https://blog.vuejs.org/).",
+    "file": "src/about/community-guide.md",
+    "lines": [
+      19,
+      22
+    ],
+    "review": "- Follow our [official Twitter account](https://x.com/vuejs).\n- Follow our [team members](./team) on Twitter or GitHub.\n- Follow the [RFC discussions](https://github.com/vuejs/rfcs).\n- Subscribe to the [official blog](https://blog.vuejs.org/)."
+  },
+  {
+    "current": "Vue 是一个独立的社区驱动的项目。它是由[尤雨溪](https://twitter.com/yuxiyou)在 2014 年作为其个人项目创建的。今天，Vue 由[来自世界各地的全职成员和志愿者组成的团队](/about/team)积极活跃地维护着，并由尤雨溪担任项目负责人。你可以在[这部纪录片](https://www.youtube.com/watch?v=OrxmtDw4pVI)中了解更多关于 Vue 的故事。",
+    "incoming": "Vue is an independent, community-driven project. It was created by [Evan You](https://x.com/youyuxi) in 2014 as a personal side project. Today, Vue is actively maintained by [a team of both full-time and volunteer members from all around the world](/about/team), where Evan serves as the project lead. You can learn more about the story of Vue in this [documentary](https://www.youtube.com/watch?v=OrxmtDw4pVI).",
+    "file": "src/about/faq.md",
+    "lines": [
+      5,
+      5
+    ],
+    "review": "Vue is an independent, community-driven project. It was created by [Evan You](https://x.com/youyuxi) in 2014 as a personal side project. Today, Vue is actively maintained by [a team of both full-time and volunteer members from all around the world](/about/team), where Evan serves as the project lead. You can learn more about the story of Vue in this [documentary](https://www.youtube.com/watch?v=OrxmtDw4pVI)."
+  },
+  {
+    "current": "小版本发布通常会经历不定量的 beta 版。而大版本发布则会经历 alpha 和 beta 阶段。\n\n此外，我们每周都会从 GitHub 上的 `main` 和 `minor` 分支发布金丝雀版本。它们将作为不同的软件包发布以避免稳定通道的 npm 元数据变得臃肿。你可以分别通过 `npx install-vue@canary` 或 `npx install-vue@canary-minor` 安装它们。",
+    "incoming": "Minor and major releases typically go through a series of pre-release phases: **alpha**, **beta**, and **release candidate (RC)**. The number and type of pre-releases depend on the scope of changes. For example, a minor release with limited updates may only have a beta phase, while a major release will usually include all three phases to allow for thorough testing and community feedback.\n\nYou can install the latest pre-releases from npm using `npx install-vue@alpha`, `npx install-vue@beta`, or `npx install-vue@rc`. For testing changes not yet included in tagged pre-releases, every commit to the [vuejs/core](https://github.com/vuejs/core) repository is published as a temporary continuous-release preview, which you can install using `npx install-vue@edge`.",
+    "file": "src/about/releases.md",
+    "lines": [
+      59,
+      61
+    ],
+    "review": "Minor and major releases typically go through a series of pre-release phases: **alpha**, **beta**, and **release candidate (RC)**. The number and type of pre-releases depend on the scope of changes. For example, a minor release with limited updates may only have a beta phase, while a major release will usually include all three phases to allow for thorough testing and community feedback.\n\nYou can install the latest pre-releases from npm using `npx install-vue@alpha`, `npx install-vue@beta`, or `npx install-vue@rc`. For testing changes not yet included in tagged pre-releases, every commit to the [vuejs/core](https://github.com/vuejs/core) repository is published as a temporary continuous-release preview, which you can install using `npx install-vue@edge`."
+  },
+  {
+    "current": "`v-text` 通过设置元素的 [textContent](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent) 属性来工作，因此它将覆盖元素中所有现有的内容。如果你需要更新 `textContent` 的部分，应该使用 [mustache interpolations](/guide/essentials/template-syntax#text-interpolation) 代替。",
+    "incoming": "`v-text` works by setting the element's [textContent](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent) property, so it will overwrite any existing content inside the element. If you need to update only part of the `textContent`, you should use [mustache interpolations](/guide/essentials/template-syntax#text-interpolation) instead (ie. <span v-pre>`<span>Keep this but update a {{dynamicPortion}}</span>`</span>).",
+    "file": "src/api/built-in-directives.md",
+    "lines": [
+      11,
+      11
+    ],
+    "review": "`v-text` works by setting the element's [textContent](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent) property, so it will overwrite any existing content inside the element. If you need to update only part of the `textContent`, you should use [mustache interpolations](/guide/essentials/template-syntax#text-interpolation) instead (ie. <span v-pre>`<span>Keep this but update a {{dynamicPortion}}</span>`</span>)."
+  },
+  {
+    "current": "`@vitejs/plugin-vue` 会自动为这些标志提供默认值。要更改默认值，请使用 Vite 的 [`define` 配置项](https://vitejs.dev/config/shared-options.html#define)：",
+    "incoming": "`@vitejs/plugin-vue` automatically provides default values for these flags. To change the default values, use Vite's [`define` config option](https://vite.dev/config/shared-options.html#define):",
+    "file": "src/api/compile-time-flags.md",
+    "lines": [
+      41,
+      41
+    ],
+    "review": "`@vitejs/plugin-vue` automatically provides default values for these flags. To change the default values, use Vite's [`define` config option](https://vite.dev/config/shared-options.html#define):"
+  },
+  {
+    "current": "**错误捕获注意事项**",
+    "incoming": "**Error Capturing Caveats**\n  \n  - In components with async `setup()` function (with top-level `await`) Vue **will always** try to render component template, even if `setup()` threw error. This will likely cause more errors because during render component's template might try to access non-existing properties of failed `setup()` context. When capturing errors in such components, be ready to handle errors from both failed async `setup()` (they will always come first) and failed render process.",
+    "file": "src/api/options-lifecycle.md",
+    "lines": [
+      218,
+      220
+    ],
+    "review": "**Error Capturing Caveats**\n  \n  - In components with async `setup()` function (with top-level `await`) Vue **will always** try to render component template, even if `setup()` threw error. This will likely cause more errors because during render component's template might try to access non-existing properties of failed `setup()` context. When capturing errors in such components, be ready to handle errors from both failed async `setup()` (they will always come first) and failed render process."
+  },
+  {
+    "current": "这个限制已经在 3.3 版本中解决。最新版本的 Vue 支持在类型参数的位置引用导入的和有限的复杂类型。然而，由于类型到运行时的转换仍然基于 AST，因此并不支持使用需要实际类型分析的复杂类型，例如条件类型等。你可以在单个 prop 的类型上使用条件类型，但不能对整个 props 对象使用。",
+    "incoming": "This limitation was resolved in 3.3. The latest version of Vue supports referencing imported and a limited set of complex types in the type parameter position. However, because the type to runtime conversion is still AST-based, some complex types that require actual type analysis, e.g. conditional types, are not supported. You can use conditional types for the type of a single prop, but not the entire props object.",
+    "file": "src/api/sfc-script-setup.md",
+    "lines": [
+      214,
+      214
+    ],
+    "review": "This limitation was resolved in 3.3. The latest version of Vue supports referencing imported and a limited set of complex types in the type parameter position. However, because the type to runtime conversion is still AST-based, some complex types that require actual type analysis, e.g. conditional types, are not supported. You can use conditional types for the type of a single prop, but not the entire props object."
+  },
+  {
+    "current": "- 在开发模式下，编译器会试着从类型来推导对应的运行时验证。例如这里从 `foo: string` 类型中推断出 `foo: String`。如果类型是对导入类型的引用，这里的推导结果会是 `foo: null` (与 `any` 类型相等)，因为编译器没有外部文件的信息。",
+    "incoming": "- In dev mode, the compiler will try to infer corresponding runtime validation from the types. For example here `foo: String` is inferred from the `foo: string` type. Imported types are also resolved, provided TypeScript is installed as a peer dependency.",
+    "file": "src/api/sfc-script-setup.md",
+    "lines": [
+      204,
+      204
+    ],
+    "review": "- In dev mode, the compiler will try to infer corresponding runtime validation from the types. For example here `foo: String` is inferred from the `foo: string` type. Imported types are also resolved, provided TypeScript is installed as a peer dependency."
+  },
+  {
+    "current": "- [Vite](https://cn.vitejs.dev/guide/features.html#css-pre-processors)\n- [Vue CLI](https://cli.vuejs.org/zh/guide/css.html#%E9%A2%84%E5%A4%84%E7%90%86%E5%99%A8)\n- [webpack + vue-loader](https://vue-loader.vuejs.org/zh/guide/pre-processors.html#%E4%BD%BF%E7%94%A8%E9%A2%84%E5%A4%84%E7%90%86%E5%99%A8)",
+    "incoming": "- [Vite](https://vite.dev/guide/features.html#css-pre-processors)\n- [Vue CLI](https://cli.vuejs.org/guide/css.html#pre-processors)\n- [webpack + vue-loader](https://vue-loader.vuejs.org/guide/pre-processors.html#using-pre-processors)",
+    "file": "src/api/sfc-spec.md",
+    "lines": [
+      108,
+      110
+    ],
+    "review": "- [Vite](https://vite.dev/guide/features.html#css-pre-processors)\n- [Vue CLI](https://cli.vuejs.org/guide/css.html#pre-processors)\n- [webpack + vue-loader](https://vue-loader.vuejs.org/guide/pre-processors.html#using-pre-processors)"
+  },
+  {
+    "current": "// 确保只在服务端渲染时调用\n  // https://cn.vitejs.dev/guide/ssr.html#conditional-logic",
+    "incoming": "// make sure to only call it during SSR\n  // https://vite.dev/guide/ssr.html#conditional-logic",
+    "file": "src/api/ssr.md",
+    "lines": [
+      215,
+      216
+    ],
+    "review": "// make sure to only call it during SSR\n  // https://vite.dev/guide/ssr.html#conditional-logic"
+  },
+  {
+    "current": "- [Vite 生产环境指南](https://cn.vitejs.dev/guide/build.html)\n- [Vite 部署指南](https://cn.vitejs.dev/guide/static-deploy.html)\n- [Vue CLI 部署指南](https://cli.vuejs.org/zh/guide/deployment.html)",
+    "incoming": "- [Vite production build guide](https://vite.dev/guide/build.html)\n- [Vite deployment guide](https://vite.dev/guide/static-deploy.html)\n- [Vue CLI deployment guide](https://cli.vuejs.org/guide/deployment.html)",
+    "file": "src/guide/best-practices/production-deployment.md",
+    "lines": [
+      35,
+      37
+    ],
+    "review": "- [Vite production build guide](https://vite.dev/guide/build.html)\n- [Vite deployment guide](https://vite.dev/guide/static-deploy.html)\n- [Vue CLI deployment guide](https://cli.vuejs.org/guide/deployment.html)"
+  },
+  {
+    "current": "我们可以通过传入 `max` prop 来限制可被缓存的最大组件实例数。`<KeepAlive>` 的行为在指定了 `max` 后类似一个 [LRU 缓存](<https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)>)：如果缓存的实例数量即将超过指定的那个最大数量，则最久没有被访问的缓存实例将被销毁，以便为新的实例腾出空间。",
+    "incoming": "We can limit the maximum number of component instances that can be cached via the `max` prop. When `max` is specified, `<KeepAlive>` behaves like an [LRU cache](<https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_(LRU)>): if the number of cached instances is about to exceed the specified max count, the least recently accessed cached instance will be destroyed to make room for the new one.",
+    "file": "src/guide/built-ins/keep-alive.md",
+    "lines": [
+      82,
+      82
+    ],
+    "review": "We can limit the maximum number of component instances that can be cached via the `max` prop. When `max` is specified, `<KeepAlive>` behaves like an [LRU cache](<https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_Recently_Used_(LRU)>): if the number of cached instances is about to exceed the specified max count, the least recently accessed cached instance will be destroyed to make room for the new one."
+  },
+  {
+    "current": "`<Teleport>` 挂载时，传送的 `to` 目标必须已经存在于 DOM 中。理想情况下，这应该是整个 Vue 应用 DOM 树外部的一个元素。如果目标元素也是由 Vue 渲染的，你需要确保在挂载 `<Teleport>` 之前先挂载该元素。",
+    "incoming": "The teleport `to` target must be already in the DOM when the `<Teleport>` component is mounted. Ideally, this should be an element outside the entire Vue application. If targeting another element rendered by Vue, you need to make sure that element is mounted before the `<Teleport>`. If you are using SSR, see [Handling Teleports in SSR](/guide/scaling-up/ssr#teleports).",
+    "file": "src/guide/built-ins/teleport.md",
+    "lines": [
+      151,
+      151
+    ],
+    "review": "The teleport `to` target must be already in the DOM when the `<Teleport>` component is mounted. Ideally, this should be an element outside the entire Vue application. If targeting another element rendered by Vue, you need to make sure that element is mounted before the `<Teleport>`. If you are using SSR, see [Handling Teleports in SSR](/guide/scaling-up/ssr#teleports)."
+  },
+  {
+    "current": "## 单向数据流 {#one-way-data-flow}",
+    "incoming": "### Merge Behavior When Combining Bindings {#merge-behavior-when-combining-bindings}\n\nWhen `v-bind` is used alongside explicit bindings on the same component, Vue internally calls `mergeProps()` to combine them. The merging strategy depends on the key type:\n\n- **Regular props** — the last value wins:\n\n```vue-html\n<!-- title === 'bar' -->\n<BlogPost title=\"foo\" v-bind=\"{ title: 'bar' }\" />\n```\n\n- **Event listeners** — when passing listeners in a `v-bind` object, [use the `onEventName` key convention](/guide/extras/render-function#v-on). All handlers for the same event will be called (see [`v-on` Listener Inheritance](/guide/components/attrs#v-on-listener-inheritance)):\n\n```vue-html\n<!-- logs 1 and 2 -->\n<BlogPost @click=\"console.log(1)\" v-bind=\"{ onClick: () => console.log(2) }\" />\n```\n\n- **`class` and `style`** follow a similar merge strategy (see [`class` and `style` Merging](/guide/components/attrs#class-and-style-merging)).\n\n:::tip\nThe full merging rules are described in the [`mergeProps()`](/api/render-function#mergeprops) API reference.\n:::\n\n## One-Way Data Flow {#one-way-data-flow}",
+    "file": "src/guide/components/props.md",
+    "lines": [
+      341,
+      365
+    ],
+    "review": "### Merge Behavior When Combining Bindings {#merge-behavior-when-combining-bindings}\n\nWhen `v-bind` is used alongside explicit bindings on the same component, Vue internally calls `mergeProps()` to combine them. The merging strategy depends on the key type:\n\n- **Regular props** — the last value wins:\n\n```vue-html\n<!-- title === 'bar' -->\n<BlogPost title=\"foo\" v-bind=\"{ title: 'bar' }\" />\n```\n\n- **Event listeners** — when passing listeners in a `v-bind` object, [use the `onEventName` key convention](/guide/extras/render-function#v-on). All handlers for the same event will be called (see [`v-on` Listener Inheritance](/guide/components/attrs#v-on-listener-inheritance)):\n\n```vue-html\n<!-- logs 1 and 2 -->\n<BlogPost @click=\"console.log(1)\" v-bind=\"{ onClick: () => console.log(2) }\" />\n```\n\n- **`class` and `style`** follow a similar merge strategy (see [`class` and `style` Merging](/guide/components/attrs#class-and-style-merging)).\n\n:::tip\nThe full merging rules are described in the [`mergeProps()`](/api/render-function#mergeprops) API reference.\n:::\n\n## One-Way Data Flow {#one-way-data-flow}"
+  },
+  {
+    "current": "## 多个应用实例 {#multiple-application-instances}",
+    "incoming": "## Multiple Application Instances {#multiple-application-instances}",
+    "file": "src/guide/essentials/application.md",
+    "lines": [
+      112,
+      112
+    ],
+    "review": "## Multiple Application Instances {#multiple-application-instances}"
+  },
+  {
+    "current": "## 应用实例 {#the-application-instance}",
+    "incoming": "## The Application Instance {#the-application-instance}",
+    "file": "src/guide/essentials/application.md",
+    "lines": [
+      3,
+      3
+    ],
+    "review": "## The Application Instance {#the-application-instance}"
+  },
+  {
+    "current": "这在 3.5 之前的版本有效。此外，通过函数参数传递的 `onCleanup` 与侦听器实例相绑定，因此不受 `onWatcherCleanup` 的同步限制。",
+    "incoming": "`onCleanup` passed via function argument is bound to the watcher instance so it is not subject to the synchronous constraint of `onWatcherCleanup`.",
+    "file": "src/guide/essentials/watchers.md",
+    "lines": [
+      489,
+      489
+    ],
+    "review": "`onCleanup` passed via function argument is bound to the watcher instance so it is not subject to the synchronous constraint of `onWatcherCleanup`."
+  },
+  {
+    "current": "- [Solid 信号](https://www.solidjs.com/docs/latest/api#createsignal)\n- [Angular 信号](https://angular.dev/guide/signals)\n- [Preact 信号](https://preactjs.com/guide/v10/signals/)\n- [Qwik 信号](https://qwik.builder.io/docs/components/state/#usesignal)",
+    "incoming": "- [Solid Signals](https://docs.solidjs.com/concepts/signals)\n- [Angular Signals](https://angular.dev/guide/signals)\n- [Preact Signals](https://preactjs.com/guide/v10/signals/)\n- [Qwik Signals](https://qwik.builder.io/docs/components/state/#usesignal)",
+    "file": "src/guide/extras/reactivity-in-depth.md",
+    "lines": [
+      405,
+      408
+    ],
+    "review": "- [Solid Signals](https://docs.solidjs.com/concepts/signals)\n- [Angular Signals](https://angular.dev/guide/signals)\n- [Preact Signals](https://preactjs.com/guide/v10/signals/)\n- [Qwik Signals](https://qwik.builder.io/docs/components/state/#usesignal)"
+  },
+  {
+    "current": "虚拟 DOM (Virtual DOM，简称 VDOM) 是一种编程概念，意为将目标所需的 UI 通过数据结构“虚拟”地表示出来，保存在内存中，然后将真实的 DOM 与之保持同步。这个概念是由 [React](https://reactjs.org/) 率先开拓，随后被许多不同的框架采用，当然也包括 Vue。",
+    "incoming": "The virtual DOM (VDOM) is a programming concept where an ideal, or “virtual”, representation of a UI is kept in memory and synced with the “real” DOM. The concept was pioneered by [React](https://react.dev/), and has been adopted in many other frameworks with different implementations, including Vue.",
+    "file": "src/guide/extras/rendering-mechanism.md",
+    "lines": [
+      13,
+      13
+    ],
+    "review": "The virtual DOM (VDOM) is a programming concept where an ideal, or “virtual”, representation of a UI is kept in memory and synced with the “real” DOM. The concept was pioneered by [React](https://react.dev/), and has been adopted in many other frameworks with different implementations, including Vue."
+  },
+  {
+    "current": "// 我们可以为每个需要定义的元素重复使用这个类型助手",
+    "incoming": "// We can reuse this type helper for each element we need to define.",
+    "file": "src/guide/extras/web-components.md",
+    "lines": [
+      351,
+      351
+    ],
+    "review": "// We can reuse this type helper for each element we need to define."
+  },
+  {
+    "current": "- 推荐的 IDE 配置是 [Visual Studio Code](https://code.visualstudio.com/) + [Vue - Official 扩展](https://marketplace.visualstudio.com/items?itemName=Vue.volar)。如果使用其他编辑器，参考 [IDE 支持章节](/guide/scaling-up/tooling#ide-support)。\n- 更多工具细节，包括与后端框架的整合，我们会在[工具链指南](/guide/scaling-up/tooling)进行讨论。\n- 要了解构建工具 Vite 更多背后的细节，请查看 [Vite 文档](https://cn.vitejs.dev)。\n- 如果你选择使用 TypeScript，请阅读 [TypeScript 使用指南](typescript/overview)。",
+    "incoming": "- The recommended IDE setup is [Visual Studio Code](https://code.visualstudio.com/) + [Vue - Official extension](https://marketplace.visualstudio.com/items?itemName=Vue.volar). If you use other editors, check out the [IDE support section](/guide/scaling-up/tooling#ide-support).\n- More tooling details, including integration with backend frameworks, are discussed in the [Tooling Guide](/guide/scaling-up/tooling).\n- To learn more about the underlying build tool Vite, check out the [Vite docs](https://vite.dev/).\n- If you choose to use TypeScript, check out the [TypeScript Usage Guide](typescript/overview).",
+    "file": "src/guide/quick-start.md",
+    "lines": [
+      112,
+      115
+    ],
+    "review": "- The recommended IDE setup is [Visual Studio Code](https://code.visualstudio.com/) + [Vue - Official extension](https://marketplace.visualstudio.com/items?itemName=Vue.volar). If you use other editors, check out the [IDE support section](/guide/scaling-up/tooling#ide-support).\n- More tooling details, including integration with backend frameworks, are discussed in the [Tooling Guide](/guide/scaling-up/tooling).\n- To learn more about the underlying build tool Vite, check out the [Vite docs](https://vite.dev/).\n- If you choose to use TypeScript, check out the [TypeScript Usage Guide](typescript/overview)."
+  },
+  {
+    "current": "在本节中，我们将介绍如何在本地搭建 Vue [单页应用](/guide/extras/ways-of-using-vue#single-page-application-spa)。创建的项目将使用基于 [Vite](https://vitejs.dev) 的构建设置，并允许我们使用 Vue 的[单文件组件](/guide/scaling-up/sfc) (SFC)。",
+    "incoming": "In this section we will introduce how to scaffold a Vue [Single Page Application](/guide/extras/ways-of-using-vue#single-page-application-spa) on your local machine. The created project will be using a build setup based on [Vite](https://vite.dev/) and allow us to use Vue [Single-File Components](/guide/scaling-up/sfc) (SFCs).",
+    "file": "src/guide/quick-start.md",
+    "lines": [
+      29,
+      29
+    ],
+    "review": "In this section we will introduce how to scaffold a Vue [Single Page Application](/guide/extras/ways-of-using-vue#single-page-application-spa) on your local machine. The created project will be using a build setup based on [Vite](https://vite.dev/) and allow us to use Vue [Single-File Components](/guide/scaling-up/sfc) (SFCs)."
+  },
+  {
+    "current": "2. 将计算属性和监听器注册到该组件实例上，以便在该组件被卸载时停止监听，避免内存泄漏。",
+    "incoming": "2. Watchers can be linked to it, so that they can be disposed when the instance is unmounted to prevent memory leaks.",
+    "file": "src/guide/reusability/composables.md",
+    "lines": [
+      305,
+      305
+    ],
+    "review": "2. Watchers can be linked to it, so that they can be disposed when the instance is unmounted to prevent memory leaks."
+  },
+  {
+    "current": "通过扩展 `vue` 中的 `ComponentCustomProperties` 接口，可以为自定义的全局指令添加类型。",
+    "incoming": "It is possible to type global custom directives by extending the `GlobalDirectives` interface from `vue`",
+    "file": "src/guide/reusability/custom-directives.md",
+    "lines": [
+      113,
+      113
+    ],
+    "review": "It is possible to type global custom directives by extending the `GlobalDirectives` interface from `vue`"
+  },
+  {
+    "current": "### 为 NPM 打包\n\n如果你想进一步打包并发布插件给他人使用，请参阅 [Vite 库模式](https://vitejs.dev/guide/build.html#library-mode)。",
+    "incoming": "### Bundle for NPM {#bundle-for-npm}\n\nIf you further want to build and publish your plugin for others to use, see [Vite's section on Library Mode](https://vite.dev/guide/build.html#library-mode).",
+    "file": "src/guide/reusability/plugins.md",
+    "lines": [
+      136,
+      138
+    ],
+    "review": "### Bundle for NPM {#bundle-for-npm}\n\nIf you further want to build and publish your plugin for others to use, see [Vite's section on Library Mode](https://vite.dev/guide/build.html#library-mode)."
+  },
+  {
+    "current": "下面是一个简单的例子：",
+    "incoming": "Here's a bare-bones example:",
+    "file": "src/guide/scaling-up/routing.md",
+    "lines": [
+      26,
+      26
+    ],
+    "review": "Here's a bare-bones example:"
+  },
+  {
+    "current": "在实际项目中，我们一般会使用集成了单文件组件编译器的构建工具，比如 [Vite](https://cn.vitejs.dev/) 或者 [Vue CLI](https://cli.vuejs.org/zh/) (基于 [webpack](https://webpack.js.org/))，Vue 官方也提供了脚手架工具来帮助你尽可能快速地上手开发单文件组件。更多细节请查看[单文件组件工具链](/guide/scaling-up/tooling)章节。",
+    "incoming": "In actual projects, we typically integrate the SFC compiler with a build tool such as [Vite](https://vite.dev/) or [Vue CLI](http://cli.vuejs.org/) (which is based on [webpack](https://webpack.js.org/)), and Vue provides official scaffolding tools to get you started with SFCs as fast as possible. Check out more details in the [SFC Tooling](/guide/scaling-up/tooling) section.",
+    "file": "src/guide/scaling-up/sfc.md",
+    "lines": [
+      97,
+      97
+    ],
+    "review": "In actual projects, we typically integrate the SFC compiler with a build tool such as [Vite](https://vite.dev/) or [Vue CLI](http://cli.vuejs.org/) (which is based on [webpack](https://webpack.js.org/)), and Vue provides official scaffolding tools to get you started with SFCs as fast as possible. Check out more details in the [SFC Tooling](/guide/scaling-up/tooling) section."
+  },
+  {
+    "current": "Vite 提供了内置的 [Vue 服务端渲染支持](https://cn.vitejs.dev/guide/ssr.html)，但它在设计上是偏底层的。如果你想要直接使用 Vite，可以看看 [vite-plugin-ssr](https://vite-plugin-ssr.com/)，一个帮你抽象掉许多复杂细节的社区插件。",
+    "incoming": "Vite provides built-in [support for Vue server-side rendering](https://vite.dev/guide/ssr.html), but it is intentionally low-level. If you wish to go directly with Vite, check out [vite-plugin-ssr](https://vite-plugin-ssr.com/), a community plugin that abstracts away many challenging details for you.",
+    "file": "src/guide/scaling-up/ssr.md",
+    "lines": [
+      235,
+      235
+    ],
+    "review": "Vite provides built-in [support for Vue server-side rendering](https://vite.dev/guide/ssr.html), but it is intentionally low-level. If you wish to go directly with Vite, check out [vite-plugin-ssr](https://vite-plugin-ssr.com/), a community plugin that abstracts away many challenging details for you."
+  },
+  {
+    "current": "1. 在 `server.js` 中添加 `server.use(express.static('.'))` 来托管客户端文件。\n2. 将 `<script type=\"module\" src=\"/client.js\"></script>` 添加到 HTML 外壳以加载客户端入口文件。\n3. 通过在 HTML 外壳中添加 [Import Map](https://github.com/WICG/import-maps) 以支持在浏览器中使用 `import * from 'vue'`。",
+    "incoming": "1. Serve client files by adding `server.use(express.static('.'))` in `server.js`.\n2. Load the client entry by adding `<script type=\"module\" src=\"/client.js\"></script>` to the HTML shell.\n3. Support usage like `import * from 'vue'` in the browser by adding an [Import Map](https://html.spec.whatwg.org/multipage/webappapis.html#import-maps) to the HTML shell.",
+    "file": "src/guide/scaling-up/ssr.md",
+    "lines": [
+      197,
+      199
+    ],
+    "review": "1. Serve client files by adding `server.use(express.static('.'))` in `server.js`.\n2. Load the client entry by adding `<script type=\"module\" src=\"/client.js\"></script>` to the HTML shell.\n3. Support usage like `import * from 'vue'` in the browser by adding an [Import Map](https://html.spec.whatwg.org/multipage/webappapis.html#import-maps) to the HTML shell."
+  },
+  {
+    "current": "> 你的测试越是类似于你的软件的使用方式，它们就越能值得你信赖。- [Kent C. Dodds](https://twitter.com/kentcdodds/status/977018512689455106) - Testing Library 的作者",
+    "incoming": "> The more your tests resemble how your software is used, the more confidence they can give you. - [Kent C. Dodds](https://x.com/kentcdodds/status/977018512689455106) - Author of the Testing Library",
+    "file": "src/guide/scaling-up/testing.md",
+    "lines": [
+      259,
+      259
+    ],
+    "review": "> The more your tests resemble how your software is used, the more confidence they can give you. - [Kent C. Dodds](https://x.com/kentcdodds/status/977018512689455106) - Author of the Testing Library"
+  },
+  {
+    "current": "因为由 `create-vue` 创建的官方项目配置是基于 [Vite](https://cn.vitejs.dev/) 的，所以我们推荐你使用一个可以利用同一套 Vite 配置和转换管道的单元测试框架。[Vitest](https://cn.vitest.dev/) 正是一个针对此目标设计的单元测试框架，它由 Vue / Vite 团队成员开发和维护。在 Vite 的项目集成它会非常简单，而且速度非常快。",
+    "incoming": "Since the official setup created by `create-vue` is based on [Vite](https://vite.dev/), we recommend using a unit testing framework that can leverage the same configuration and transform pipeline directly from Vite. [Vitest](https://vitest.dev/) is a unit testing framework designed specifically for this purpose, created and maintained by Vue / Vite team members. It integrates with Vite-based projects with minimal effort, and is blazing fast.",
+    "file": "src/guide/scaling-up/testing.md",
+    "lines": [
+      125,
+      125
+    ],
+    "review": "Since the official setup created by `create-vue` is based on [Vite](https://vite.dev/), we recommend using a unit testing framework that can leverage the same configuration and transform pipeline directly from Vite. [Vitest](https://vitest.dev/) is a unit testing framework designed specifically for this purpose, created and maintained by Vue / Vite team members. It integrates with Vite-based projects with minimal effort, and is blazing fast."
+  },
+  {
+    "current": "- 要学习更多关于 Vite 的知识，请查看 [Vite 官方文档](https://cn.vitejs.dev)。\n- 若要了解如何为一个 Vite 项目配置 Vue 相关的特殊行为，比如向 Vue 编译器传递相关选项，请查看 [@vitejs/plugin-vue](https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue#readme) 的文档。",
+    "incoming": "- To learn more about Vite, check out the [Vite docs](https://vite.dev/).\n- To configure Vue-specific behavior in a Vite project, for example passing options to the Vue compiler, check out the docs for [@vitejs/plugin-vue](https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue#readme).",
+    "file": "src/guide/scaling-up/tooling.md",
+    "lines": [
+      58,
+      59
+    ],
+    "review": "- To learn more about Vite, check out the [Vite docs](https://vite.dev/).\n- To configure Vue-specific behavior in a Vite project, for example passing options to the Vue compiler, check out the docs for [@vitejs/plugin-vue](https://github.com/vitejs/vite-plugin-vue/tree/main/packages/plugin-vue#readme)."
+  },
+  {
+    "current": "[Vite](https://cn.vitejs.dev/) 是一个轻量级的、速度极快的构建工具，对 Vue 单文件组件提供第一优先级支持。作者是尤雨溪，同时也是 Vue 的作者！",
+    "incoming": "[Vite](https://vite.dev/) is a lightweight and fast build tool with first-class Vue SFC support. It is created by Evan You, who is also the author of Vue!",
+    "file": "src/guide/scaling-up/tooling.md",
+    "lines": [
+      24,
+      24
+    ],
+    "review": "[Vite](https://vite.dev/) is a lightweight and fast build tool with first-class Vue SFC support. It is created by Evan You, who is also the author of Vue!"
+  },
+  {
+    "current": "export interface ComponentCustomProperties {\n    // 使用 v 作为前缀 (v-highlight)",
+    "incoming": "export interface GlobalDirectives {\n    // prefix with v (v-highlight)",
+    "file": "src/guide/typescript/composition-api.md",
+    "lines": [
+      504,
+      505
+    ],
+    "review": "export interface GlobalDirectives {\n    // prefix with v (v-highlight)"
+  },
+  {
+    "current": "可以通过扩展 `ComponentCustomProperties` 来为使用 `app.directive()` 声明的全局自定义指令获取类型提示和类型检查",
+    "incoming": "In order to get type hints and type checking for global custom directives declared with `app.directive()`, you can extend `GlobalDirectives`",
+    "file": "src/guide/typescript/composition-api.md",
+    "lines": [
+      492,
+      492
+    ],
+    "review": "In order to get type hints and type checking for global custom directives declared with `app.directive()`, you can extend `GlobalDirectives`"
+  },
+  {
+    "current": "这个限制在 3.3 中得到了解决。最新版本的 Vue 支持在类型参数位置引用导入和有限的复杂类型。但是，由于类型到运行时转换仍然基于 AST，一些需要实际类型分析的复杂类型，例如条件类型，还未支持。你可以使用条件类型来指定单个 prop 的类型，但不能用于整个 props 对象的类型。",
+    "incoming": "This limitation was resolved in 3.3. The latest version of Vue supports referencing imported and a limited set of complex types in the type parameter position. However, because the type to runtime conversion is still AST-based, some complex types that require actual type analysis, e.g. conditional types, are not supported. You can use conditional types for the type of a single prop, but not the entire props object.",
+    "file": "src/guide/typescript/composition-api.md",
+    "lines": [
+      75,
+      75
+    ],
+    "review": "This limitation was resolved in 3.3. The latest version of Vue supports referencing imported and a limited set of complex types in the type parameter position. However, because the type to runtime conversion is still AST-based, some complex types that require actual type analysis, e.g. conditional types, are not supported. You can use conditional types for the type of a single prop, but not the entire props object."
+  },
+  {
+    "current": "这同样适用于 `Props` 从另一个源文件中导入的情况。该功能要求 TypeScript 作为 Vue 的一个 peer dependency。",
+    "incoming": "This also works if `Props` is imported from another file such as a relative import, a path alias (e.g., `@/types`), or an external dependency (e.g., `node_modules`). This feature requires TypeScript to be a peer dependency of Vue.",
+    "file": "src/guide/typescript/composition-api.md",
+    "lines": [
+      57,
+      57
+    ],
+    "review": "This also works if `Props` is imported from another file such as a relative import, a path alias (e.g., `@/types`), or an external dependency (e.g., `node_modules`). This feature requires TypeScript to be a peer dependency of Vue."
+  },
+  {
+    "current": "[`create-vue`](https://github.com/vuejs/create-vue)，即官方的项目脚手架工具，提供了搭建基于 [Vite](https://cn.vitejs.dev/) 且 TypeScript 就绪的 Vue 项目的选项。",
+    "incoming": "[`create-vue`](https://github.com/vuejs/create-vue), the official project scaffolding tool, offers the options to scaffold a [Vite](https://vite.dev/)-powered, TypeScript-ready Vue project.",
+    "file": "src/guide/typescript/overview.md",
+    "lines": [
+      13,
+      13
+    ],
+    "review": "[`create-vue`](https://github.com/vuejs/create-vue), the official project scaffolding tool, offers the options to scaffold a [Vite](https://vite.dev/)-powered, TypeScript-ready Vue project."
+  },
+  {
+    "current": "此赞助位同样可以通过[爱发电](https://afdian.net/a/evanyou)来订阅。如果您对此赞助位感兴趣但还抱有疑问，请致信 [sponsor@vuejs.org](mailto:sponsor@vuejs.org) 咨询具体事宜。",
+    "incoming": "- **Global Special Sponsor**:\n  - Limited to **one** sponsor globally. <span v-if=\"!data?.special\">Currently vacant. [Get in touch](mailto:sponsor@vuejs.org?subject=Vue.js%20special%20sponsor%20inquiry)!</span><span v-else>(Currently filled)</span>\n  - (Exclusive) **Above the fold** logo placement on the front page of [vuejs.org](/).\n  - (Exclusive) Special shoutout and regular retweets of major product launches via [Vue's official X account](https://x.com/vuejs) (320k followers).\n  - Most prominent logo placement in all locations from tiers below.\n- **Platinum (USD$2,000/mo)**:\n  - Prominent logo placement on the front page of [vuejs.org](/).\n  - Prominent logo placement in sidebar of all content pages.\n  - Prominent logo placement in the README of [`vuejs/core`](https://github.com/vuejs/core) and [`vuejs/vue`](https://github.com/vuejs/core).\n- **Gold (USD$500/mo)**:\n  - Large logo placement on the front page of [vuejs.org](/).\n  - Large logo placement in the README of `vuejs/core` and `vuejs/vue`.\n- **Silver (USD$250/mo)**:\n  - Medium logo placement in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.\n- **Bronze (USD$100/mo)**:\n  - Small logo placement in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.\n- **Generous Backer (USD$50/mo)**:\n  - Name listed in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`, above other individual backers.\n- **Individual Backer (USD$5/mo)**:\n  - Name listed in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.",
+    "file": "src/sponsor/index.md",
+    "lines": [
+      42,
+      61
+    ],
+    "review": "- **Global Special Sponsor**:\n  - Limited to **one** sponsor globally. <span v-if=\"!data?.special\">Currently vacant. [Get in touch](mailto:sponsor@vuejs.org?subject=Vue.js%20special%20sponsor%20inquiry)!</span><span v-else>(Currently filled)</span>\n  - (Exclusive) **Above the fold** logo placement on the front page of [vuejs.org](/).\n  - (Exclusive) Special shoutout and regular retweets of major product launches via [Vue's official X account](https://x.com/vuejs) (320k followers).\n  - Most prominent logo placement in all locations from tiers below.\n- **Platinum (USD$2,000/mo)**:\n  - Prominent logo placement on the front page of [vuejs.org](/).\n  - Prominent logo placement in sidebar of all content pages.\n  - Prominent logo placement in the README of [`vuejs/core`](https://github.com/vuejs/core) and [`vuejs/vue`](https://github.com/vuejs/core).\n- **Gold (USD$500/mo)**:\n  - Large logo placement on the front page of [vuejs.org](/).\n  - Large logo placement in the README of `vuejs/core` and `vuejs/vue`.\n- **Silver (USD$250/mo)**:\n  - Medium logo placement in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.\n- **Bronze (USD$100/mo)**:\n  - Small logo placement in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.\n- **Generous Backer (USD$50/mo)**:\n  - Name listed in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`, above other individual backers.\n- **Individual Backer (USD$5/mo)**:\n  - Name listed in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`."
+  },
+  {
+    "current": "要么通过配置构建工具来正确解析 `vue`。以下是 [Vite](https://vitejs.dev/) 配置的示例：",
+    "incoming": "inside your scripts or configure your build tool to resolve `vue` accordingly. Sample config for [Vite](https://vite.dev/):",
+    "file": "src/tutorial/src/step-1/description.md",
+    "lines": [
+      33,
+      33
+    ],
+    "review": "inside your scripts or configure your build tool to resolve `vue` accordingly. Sample config for [Vite](https://vite.dev/):"
+  }
+]
