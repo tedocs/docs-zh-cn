@@ -70,10 +70,10 @@ ${item.current}
 ${item.incoming}`;
 
     try {
-      const result = execSync(`copilot -p ${JSON.stringify(prompt)} --allow-all`, {
+      const result = execSync(`copilot -p ${JSON.stringify(prompt)} --allow-all -s`, {
         encoding: "utf-8",
         env: { ...process.env },
-        stdio: ["pipe", "stdout", "pipe"],
+        stdio: ["pipe", "pipe", "pipe"],
         timeout: 120_000,
       }).trim();
 

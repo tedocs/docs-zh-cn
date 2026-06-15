@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import { writeFileSync, unlinkSync } from "fs";
 
 const gh = (cmd) => execSync(cmd, { encoding: "utf-8" }).trim();
 
@@ -49,9 +50,12 @@ if (existing) {
   body += `\n> Automated by [autopr.yml](.github/workflows/autopr.yml)\n`;
 
   // ── 3. Create PR ──
+  const tmpFile = "/tmp/pr-body.md";
+  writeFileSync(tmpFile, body, "utf-8");
   const prUrl = gh(
-    `gh pr create --repo "${repo}" --base "${TARGET_BRANCH}" --head "${SYNC_BRANCH}" --title "Sync #${UPSTREAM_HASH} — upstream merge & translate" --body ${JSON.stringify(body)} --label "从英文版同步" --label "请使用 merge commit 合并"`,
+    `gh pr create --repo "${repo}" --base "${TARGET_BRANCH}" --head "${SYNC_BRANCH}" --title "Sync(autopr) #${UPSTREAM_HASH} — upstream merge & translate" --body-file "${tmpFile}" --label "从英文版同步" --label "请使用 merge commit 合并"`,
   );
+  unlinkSync(tmpFile);
 
   prNumber = prUrl.match(/(\d+)$/)?.[1];
   console.log(`Created PR: #${prNumber}`);
@@ -73,12 +77,13 @@ async function requestReview() {
 
   // Post review instruction comment
   const commentBody =
-    `@copilot review\n\n` +
+    `@veaba review\n\n` +
     `Please review this automated sync PR:\n` +
     `1. Translation accuracy per [conventions](https://github.com/${repo}/blob/main/.claude/skills/vuejs-docs-zh-cn/SKILL.md)\n` +
     `2. No unintended content changes\n` +
     `3. Markdown formatting preserved\n` +
-    `4. Code blocks and links intact`;
+    `4. Code blocks and links intact\n` +
+    `> Expected conflict on \`sync\` to \`main\` — resolve manually.\n`;
 
   await fetch(`${apiBase}/issues/${prNumber}/comments`, {
     method: "POST",
