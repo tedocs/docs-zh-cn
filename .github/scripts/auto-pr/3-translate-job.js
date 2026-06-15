@@ -45,7 +45,7 @@ for (const [file, items] of Object.entries(byFile)) {
     if (item.incoming === item.current) {
       console.log("    ⏭ same as current, skip");
       skipped++;
-      done.push({ ...item, translation: item.current });
+      done.push({ ...item, review: item.current });
       continue;
     }
 
@@ -78,17 +78,17 @@ ${item.incoming}`;
       }).trim();
 
       if (result) {
-        done.push({ ...item, translation: result });
+        done.push({ ...item, review: result });
         translated++;
         console.log("    ✓ translated");
       } else {
         console.log("    ⚠ empty result, keeping incoming");
-        done.push({ ...item, translation: item.incoming });
+        done.push({ ...item, review: item.incoming });
         skipped++;
       }
     } catch (err) {
       console.error(`    ✗ copilot failed: ${err.message}`);
-      done.push({ ...item, translation: item.incoming });
+      done.push({ ...item, review: item.incoming });
       skipped++;
     }
   }
