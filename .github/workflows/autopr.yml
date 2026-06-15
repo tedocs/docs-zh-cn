@@ -41,9 +41,7 @@ jobs:
         run: |
           git checkout origin/${{ env.TARGET_BRANCH }} -- \
             .github/scripts/auto-pr/ \
-            .claude/skills/vuejs-docs-zh-cn/ \
-            package.json \
-            pnpm-lock.yaml
+            .claude/skills/vuejs-docs-zh-cn/
 
       - name: Install dependencies
         run: |
@@ -100,11 +98,19 @@ jobs:
         if: steps.check-done.outputs.done_file_exists == 'true'
         run: bun .github/scripts/auto-pr/4-apply-job.js
 
+      # ── 5. Collect actual merge result (after conflict resolution) ──
+      - name: Collect merge info
+        id: info
+        env:
+          MERGE_STATUS: ${{ steps.merge.outputs.merge_status }}
+          DETECT_CHANGED_FILES: ${{ steps.detect.outputs.changed_files }}
+        run: bun .github/scripts/auto-pr/5-collect-merge-info.js
+
       # ── Push once after everything ──
       - name: Commit and push to sync
         if: steps.detect.outputs.merge_result != 'no_changes'
         env:
-          MERGE_RESULT: ${{ steps.detect.outputs.merge_result }}
+          MERGE_RESULT: ${{ steps.info.outputs.merge_result }}
           UPSTREAM_HASH: ${{ steps.detect.outputs.upstream_hash }}
         run: |
           git add -A
@@ -117,18 +123,21 @@ jobs:
           git commit -m "sync: merge upstream $UPSTREAM_HASH
 
           - Merge result: $MERGE_RESULT
-          - Upstream: ${{ env.UPSTREAM_REPO }}@${{ env.UPSTREAM_HASH }}"
+          - Upstream: vuejs/docs@$UPSTREAM_HASH"
 
-          git push origin ${{ env.SYNC_BRANCH }} --force-with-lease
+          git push origin sync --force-with-lease
 
-      # ── 5. Create PR and request review ──
+      # ── 6. Create PR and request review ──
       - name: Create PR and request review
         if: steps.detect.outputs.merge_result != 'no_changes'
         env:
           GH_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          UPSTREAM_REPO: vuejs/docs
+          SYNC_BRANCH: sync
+          TARGET_BRANCH: main
           UPSTREAM_HASH: ${{ steps.detect.outputs.upstream_hash }}
-          MERGE_RESULT: ${{ steps.detect.outputs.merge_result }}
-          CONFLICT_FILES: ${{ steps.detect.outputs.conflict_files }}
-          CHANGED_FILES: ${{ steps.detect.outputs.changed_files }}
-        run: bun .github/scripts/auto-pr/5-create-pr-and-review.js
+          MERGE_RESULT: ${{ steps.info.outputs.merge_result }}
+          CONFLICT_FILES: ${{ steps.info.outputs.conflict_files }}
+          CHANGED_FILES: ${{ steps.info.outputs.changed_files }}
+        run: bun .github/scripts/auto-pr/6-create-pr-and-review.js

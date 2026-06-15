@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import { writeFileSync, unlinkSync } from "fs";
 
 const gh = (cmd) => execSync(cmd, { encoding: "utf-8" }).trim();
 
@@ -49,9 +50,12 @@ if (existing) {
   body += `\n> Automated by [autopr.yml](.github/workflows/autopr.yml)\n`;
 
   // ── 3. Create PR ──
+  const tmpFile = "/tmp/pr-body.md";
+  writeFileSync(tmpFile, body, "utf-8");
   const prUrl = gh(
-    `gh pr create --repo "${repo}" --base "${TARGET_BRANCH}" --head "${SYNC_BRANCH}" --title "Sync #${UPSTREAM_HASH} — upstream merge & translate" --body ${JSON.stringify(body)} --label "从英文版同步" --label "请使用 merge commit 合并"`,
+    `gh pr create --repo "${repo}" --base "${TARGET_BRANCH}" --head "${SYNC_BRANCH}" --title "Sync #${UPSTREAM_HASH} — upstream merge & translate" --body-file "${tmpFile}" --label "从英文版同步" --label "请使用 merge commit 合并"`,
   );
+  unlinkSync(tmpFile);
 
   prNumber = prUrl.match(/(\d+)$/)?.[1];
   console.log(`Created PR: #${prNumber}`);

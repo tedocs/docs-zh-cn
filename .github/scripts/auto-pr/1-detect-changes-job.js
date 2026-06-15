@@ -43,7 +43,6 @@ async function main() {
   if (behind === "0") {
     console.log("Sync branch is up to date with upstream. No changes.");
     setOutput("merge_result", "no_changes");
-    setOutput("conflict_files", "");
     setOutput("changed_files", "");
     setOutput("upstream_hash", upstreamHash);
     return;
@@ -67,7 +66,6 @@ async function main() {
   if (changedFiles.length === 0) {
     console.log("No markdown changes detected (non-md files may have changed).");
     setOutput("merge_result", "no_changes");
-    setOutput("conflict_files", "");
     setOutput("changed_files", "");
     setOutput("upstream_hash", upstreamHash);
     return;
@@ -75,7 +73,6 @@ async function main() {
 
   // The actual merge will be done by the merge job — just report what changed
   setOutput("merge_result", "clean");
-  setOutput("conflict_files", "");
   setOutput("changed_files", changedFiles.join(","));
   setOutput("upstream_hash", upstreamHash);
 
