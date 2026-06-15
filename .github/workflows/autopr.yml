@@ -36,13 +36,6 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
-      # Restore all scripts from main (one-time, persists across steps)
-      - name: Restore scripts from main
-        run: |
-          git checkout origin/${{ env.TARGET_BRANCH }} -- \
-            .github/scripts/auto-pr/ \
-            .claude/skills/vuejs-docs-zh-cn/
-
       - name: Install dependencies
         run: |
           pnpm install --no-frozen-lockfile
