@@ -24,7 +24,7 @@ for (const [file, conflicts] of Object.entries(grouped)) {
 
   for (const c of conflicts) {
     const [start, end] = getRange(c); // 1-based
-    const transLines = c.translation.split("\n");
+    const transLines = c.review.split("\n");
     lines.splice(start - 1, end - start + 1, ...transLines);
   }
 
