@@ -39,7 +39,26 @@ Vue.js 是采用 MIT 许可的开源项目，使用完全免费。
 
 3. 在 [`vuejs/core`](https://github.com/vuejs/core) 和 [`vuejs/vue`](https://github.com/vuejs/core) 的 README 上明显的 logo 展示位。
 
-此赞助位同样可以通过[爱发电](https://afdian.net/a/evanyou)来订阅。如果您对此赞助位感兴趣但还抱有疑问，请致信 [sponsor@vuejs.org](mailto:sponsor@vuejs.org) 咨询具体事宜。
+- **Global Special Sponsor**:
+  - Limited to **one** sponsor globally. <span v-if="!data?.special">Currently vacant. [Get in touch](mailto:sponsor@vuejs.org?subject=Vue.js%20special%20sponsor%20inquiry)!</span><span v-else>(Currently filled)</span>
+  - (Exclusive) **Above the fold** logo placement on the front page of [vuejs.org](/).
+  - (Exclusive) Special shoutout and regular retweets of major product launches via [Vue's official X account](https://x.com/vuejs) (320k followers).
+  - Most prominent logo placement in all locations from tiers below.
+- **Platinum (USD$2,000/mo)**:
+  - Prominent logo placement on the front page of [vuejs.org](/).
+  - Prominent logo placement in sidebar of all content pages.
+  - Prominent logo placement in the README of [`vuejs/core`](https://github.com/vuejs/core) and [`vuejs/vue`](https://github.com/vuejs/core).
+- **Gold (USD$500/mo)**:
+  - Large logo placement on the front page of [vuejs.org](/).
+  - Large logo placement in the README of `vuejs/core` and `vuejs/vue`.
+- **Silver (USD$250/mo)**:
+  - Medium logo placement in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.
+- **Bronze (USD$100/mo)**:
+  - Small logo placement in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.
+- **Generous Backer (USD$50/mo)**:
+  - Name listed in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`, above other individual backers.
+- **Individual Backer (USD$5/mo)**:
+  - Name listed in the `BACKERS.md` file of `vuejs/core` and `vuejs/vue`.
 
 ## 国际站赞助 {#how-to-sponsor}
 

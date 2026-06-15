@@ -486,7 +486,7 @@ export default {
 
 </div>
 
-这在 3.5 之前的版本有效。此外，通过函数参数传递的 `onCleanup` 与侦听器实例相绑定，因此不受 `onWatcherCleanup` 的同步限制。
+`onCleanup` passed via function argument is bound to the watcher instance so it is not subject to the synchronous constraint of `onWatcherCleanup`.
 
 ## 回调的触发时机 {#callback-flush-timing}
 
