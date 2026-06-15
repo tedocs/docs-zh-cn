@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { readFileSync, writeFileSync } from "fs";
 
 const BASE = ".github/scripts/auto-pr";
@@ -70,7 +70,7 @@ ${item.current}
 ${item.incoming}`;
 
     try {
-      const result = execSync(`copilot -p ${JSON.stringify(prompt)} --allow-all -s`, {
+      const result = execFileSync("copilot", ["-p", prompt, "--allow-all", "-s"], {
         encoding: "utf-8",
         env: { ...process.env },
         stdio: ["pipe", "pipe", "pipe"],
