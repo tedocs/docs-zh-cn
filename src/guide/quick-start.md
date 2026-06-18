@@ -26,7 +26,7 @@ import { VTCodeGroup, VTCodeGroupTab } from '@vue/theme'
 - 已安装 `^20.19.0 || >=22.12.0` 版本的 [Node.js](https://nodejs.org/)
 :::
 
-在本节中，我们将介绍如何在本地搭建 Vue [单页应用](/guide/extras/ways-of-using-vue#single-page-application-spa)。创建的项目将使用基于 [Vite](https://vitejs.dev) 的构建设置，并允许我们使用 Vue 的[单文件组件](/guide/scaling-up/sfc) (SFC)。
+In this section we will introduce how to scaffold a Vue [Single Page Application](/guide/extras/ways-of-using-vue#single-page-application-spa) on your local machine. The created project will be using a build setup based on [Vite](https://vite.dev/) and allow us to use Vue [Single-File Components](/guide/scaling-up/sfc) (SFCs).
 
 确保你安装了最新版本的 [Node.js](https://nodejs.org/)，并且你的当前工作目录正是打算创建项目的目录。在命令行中运行以下命令 (不要带上 `$` 符号)：
 
@@ -105,14 +105,14 @@ $ bun run dev
 
 你现在应该已经运行起来了你的第一个 Vue 项目！请注意，生成的项目中的示例组件使用的是[组合式 API](/guide/introduction#composition-api) 和 `<script setup>`，而非[选项式 API](/guide/introduction#options-api)。下面是一些补充提示：
 
-- 推荐的 IDE 配置是 [Visual Studio Code](https://code.visualstudio.com/) + [Vue - Official 扩展](https://marketplace.visualstudio.com/items?itemName=Vue.volar)。如果使用其他编辑器，参考 [IDE 支持章节](/guide/scaling-up/tooling#ide-support)。
-- 更多工具细节，包括与后端框架的整合，我们会在[工具链指南](/guide/scaling-up/tooling)进行讨论。
-- 要了解构建工具 Vite 更多背后的细节，请查看 [Vite 文档](https://cn.vitejs.dev)。
-- 如果你选择使用 TypeScript，请阅读 [TypeScript 使用指南](typescript/overview)。
-
-当你准备将应用发布到生产环境时，请运行：
-
-::: code-group
+- The recommended IDE setup is [Visual Studio Code](https://code.visualstudio.com/) + [Vue - Official extension](https://marketplace.visualstudio.com/items?itemName=Vue.volar). If you use other editors, check out the [IDE support section](/guide/scaling-up/tooling#ide-support).
+- More tooling details, including integration with backend frameworks, are discussed in the [Tooling Guide](/guide/scaling-up/tooling).
+- To learn more about the underlying build tool Vite, check out the [Vite docs](https://vite.dev/).
+- If you choose to use TypeScript, check out the [TypeScript Usage Guide](typescript/overview).
+- The recommended IDE setup is [Visual Studio Code](https://code.visualstudio.com/) + [Vue - Official extension](https://marketplace.visualstudio.com/items?itemName=Vue.volar). If you use other editors, check out the [IDE support section](/guide/scaling-up/tooling#ide-support).
+- More tooling details, including integration with backend frameworks, are discussed in the [Tooling Guide](/guide/scaling-up/tooling).
+- To learn more about the underlying build tool Vite, check out the [Vite docs](https://vite.dev/).
+- If you choose to use TypeScript, check out the [TypeScript Usage Guide](typescript/overview).
 
 ```sh [npm]
 $ npm run build

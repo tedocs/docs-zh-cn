@@ -54,7 +54,7 @@ const props = defineProps<Props>()
 </script>
 ```
 
-这同样适用于 `Props` 从另一个源文件中导入的情况。该功能要求 TypeScript 作为 Vue 的一个 peer dependency。
+This also works if `Props` is imported from another file such as a relative import, a path alias (e.g., `@/types`), or an external dependency (e.g., `node_modules`). This feature requires TypeScript to be a peer dependency of Vue.
 
 ```vue
 <script setup lang="ts">
@@ -68,11 +68,11 @@ const props = defineProps<Props>()
 
 在 3.2 及以下版本中，`defineProps()` 的泛型类型参数仅限于类型字面量或对本地接口的引用。
 
-这个限制在 3.3 中得到了解决。最新版本的 Vue 支持在类型参数位置引用导入和有限的复杂类型。但是，由于类型到运行时转换仍然基于 AST，一些需要实际类型分析的复杂类型，例如条件类型，还未支持。你可以使用条件类型来指定单个 prop 的类型，但不能用于整个 props 对象的类型。
+This limitation was resolved in 3.3. The latest version of Vue supports referencing imported and a limited set of complex types in the type parameter position. However, because the type to runtime conversion is still AST-based, some complex types that require actual type analysis, e.g. conditional types, are not supported. You can use conditional types for the type of a single prop, but not the entire props object.
 
 ### Props 解构默认值 {#props-default-values}
 
-当使用基于类型的声明时，我们失去了为 props 声明默认值的能力。可以通过使用[响应式 Props 解构](/guide/components/props#reactive-props-destructure)解决这个问题。 <sup class="vt-badge" data-text="3.5+" />：
+This limitation was resolved in 3.3. The latest version of Vue supports referencing imported and a limited set of complex types in the type parameter position. However, because the type to runtime conversion is still AST-based, some complex types that require actual type analysis, e.g. conditional types, are not supported. You can use conditional types for the type of a single prop, but not the entire props object.
 
 ```ts
 interface Props {
@@ -481,7 +481,7 @@ const openModal = () => {
 
 ## 为自定义全局指令添加类型 {#typing-global-custom-directives}
 
-可以通过扩展 `ComponentCustomProperties` 来为使用 `app.directive()` 声明的全局自定义指令获取类型提示和类型检查
+In order to get type hints and type checking for global custom directives declared with `app.directive()`, you can extend `GlobalDirectives`
 
 ```ts [src/directives/highlight.ts]
 import type { Directive } from 'vue'
@@ -489,8 +489,8 @@ import type { Directive } from 'vue'
 export type HighlightDirective = Directive<HTMLElement, string>
 
 declare module 'vue' {
-  export interface ComponentCustomProperties {
-    // 使用 v 作为前缀 (v-highlight)
+In order to get type hints and type checking for global custom directives declared with `app.directive()`, you can extend `GlobalDirectives`
+    // prefix with v (v-highlight)
     vHighlight: HighlightDirective
   }
 }
@@ -501,8 +501,8 @@ export default {
   }
 } satisfies HighlightDirective
 ```
-
-```ts [main.ts]
+export interface GlobalDirectives {
+    // prefix with v (v-highlight)
 import highlight from './directives/highlight'
 // ...其它代码
 const app = createApp(App)
