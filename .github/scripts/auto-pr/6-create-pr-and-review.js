@@ -30,14 +30,16 @@ if (existing) {
   prNumber = existing;
 } else {
   // ── 2. Build PR body ──
-  let body = `## Upstream Sync\n\n- Upstream: \`${UPSTREAM_REPO}\` @ \`${UPSTREAM_HASH}\`\n- Merge result: \`${MERGE_RESULT}\`\n\n### Changes\n`;
+  let body = `## Upstream Sync\n\n- Upstream: \`${UPSTREAM_REPO}\` @ \`${UPSTREAM_HASH}\`\n- Merge result: \`${MERGE_RESULT}\`\n`;
 
   if (SYNC_BASE_HASH && UPSTREAM_HASH) {
-    body += `\n### Upstream Diff\n\nhttps://github.com/${UPSTREAM_REPO}/compare/${SYNC_BASE_HASH}...${UPSTREAM_HASH}\n`;
+    body += `\n- https://github.com/${UPSTREAM_REPO}/compare/${SYNC_BASE_HASH}...${UPSTREAM_HASH}\n`;
   }
 
+  body += `\n\n ## Changes \n`;
+
   if (CONFLICT_FILES) {
-    body += `#### Conflict files (resolved)\n`;
+    body += `### Conflict files (resolved)\n`;
     body += CONFLICT_FILES.split(",")
       .map((f) => `- ${f.trim()}`)
       .join("\n");
@@ -45,7 +47,7 @@ if (existing) {
   }
 
   if (CHANGED_FILES) {
-    body += `#### Translated files\n`;
+    body += `### Translated files\n`;
     body += CHANGED_FILES.split(",")
       .map((f) => `- ${f.trim()}`)
       .join("\n");
@@ -84,10 +86,10 @@ async function requestReview() {
   const commentBody =
     `@veaba review\n\n` +
     `Please review this automated sync PR:\n` +
-    `1. Translation accuracy per [conventions](https://github.com/${repo}/blob/main/.claude/skills/vuejs-docs-zh-cn/SKILL.md)\n` +
-    `2. No unintended content changes\n` +
-    `3. Markdown formatting preserved\n` +
-    `4. Code blocks and links intact\n` +
+    `1. Translation accuracy per conventions from the [vuejs-docs-zh-cn](https://github.com/${repo}/blob/main/.claude/skills/vuejs-docs-zh-cn/SKILL.md) skill.\n` +
+    `2. No unintended content changes.\n` +
+    `3. Markdown formatting preserved.\n` +
+    `4. Code blocks and links intact.\n` +
     `> Expected conflict on \`sync\` to \`main\` — resolve manually.\n`;
 
   await fetch(`${apiBase}/issues/${prNumber}/comments`, {
