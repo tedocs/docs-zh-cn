@@ -56,6 +56,8 @@ for (const item of todo) {
   }
 }
 
+console.time("Translation_times");
+
 console.log(
   `Total: ${todo.length}, toTranslate: ${toTranslate.length}, identical: ${identical.length}`,
 );
@@ -158,3 +160,5 @@ writeFileSync(`${BASE}/done-translation.json`, JSON.stringify(done, null, 2), "u
 console.log(
   `\n✅ Done: ${translated} translated, ${skipped} skipped → ${BASE}/done-translation.json`,
 );
+
+console.timeEnd("Translation_times");
