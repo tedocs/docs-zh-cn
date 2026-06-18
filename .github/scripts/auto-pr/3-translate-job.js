@@ -3,6 +3,12 @@ import { readFileSync, writeFileSync } from "fs";
 
 const BASE = ".github/scripts/auto-pr";
 
+/**
+ * Tip: 当 json 减少时候，作为一个文件，翻译，翻译任务多时候，使用 item 模式去翻译，这样更精准，因为 json 过大会导致质量差
+ * Mode: "all" = one call for everything, "file" = one call per file, "item" = one call per item
+ * */
+const MODE = process.env.TRANSLATE_MODE || "all";
+
 // Load todo list from merge job
 const todo = JSON.parse(readFileSync(`${BASE}/todo-translation.json`, "utf-8"));
 
@@ -11,7 +17,10 @@ if (todo.length === 0) {
   process.exit(0);
 }
 
-// Load translation conventions
+console.log(`Mode: ${MODE}`);
+
+// Load prompt template and translation conventions (once)
+const promptTemplate = readFileSync(`${BASE}/translation-prompt.md`, "utf-8");
 const terminology = readFileSync(
   ".claude/skills/vuejs-docs-zh-cn/references/terminology.md",
   "utf-8",
@@ -25,71 +34,121 @@ const guidelines = readFileSync(
   "utf-8",
 );
 
+const basePrompt = promptTemplate
+  .replace("{{TERMINOLOGY}}", terminology)
+  .replace("{{FORMATTING}}", formatting)
+  .replace("{{GUIDELINES}}", guidelines);
+
 // Group items by file
 const byFile = {};
 for (const item of todo) {
   (byFile[item.file] ??= []).push(item);
 }
 
+// Separate items that need translation from those already identical
+const toTranslate = [];
+const identical = [];
+for (const item of todo) {
+  if (item.incoming === item.current) {
+    identical.push(item);
+  } else {
+    toTranslate.push(item);
+  }
+}
+
+console.log(
+  `Total: ${todo.length}, toTranslate: ${toTranslate.length}, identical: ${identical.length}`,
+);
+
 const done = [];
 let translated = 0;
 let skipped = 0;
 
-for (const [file, items] of Object.entries(byFile)) {
-  console.log(`\n📄 ${file} (${items.length} items)`);
+// Identical items always skip
+for (const item of identical) {
+  skipped++;
+  done.push({ ...item, review: item.current });
+}
 
-  for (const [i, item] of items.entries()) {
-    console.log(`  [${i + 1}/${items.length}] lines ${item.lines.join("-")}`);
+function callCopilot(items) {
+  const itemsJson = JSON.stringify(items, null, 2);
+  const prompt = basePrompt.replace("{{ITEMS}}", itemsJson);
 
-    // If incoming is same as current (Chinese), no translation needed
-    if (item.incoming === item.current) {
-      console.log("    ⏭ same as current, skip");
-      skipped++;
-      done.push({ ...item, review: item.current });
-      continue;
+  const result = execFileSync("copilot", ["-p", prompt, "--allow-all", "-s"], {
+    encoding: "utf-8",
+    env: { ...process.env },
+    stdio: ["pipe", "pipe", "pipe"],
+    timeout: 120_000,
+  }).trim();
+
+  const jsonStr = result.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+  const reviewed = JSON.parse(jsonStr);
+
+  if (!Array.isArray(reviewed) || reviewed.length !== items.length) {
+    throw new Error(
+      `Expected array of ${items.length}, got ${Array.isArray(reviewed) ? reviewed.length : typeof reviewed}`,
+    );
+  }
+
+  return reviewed;
+}
+
+function fallbackIncoming(items) {
+  for (const item of items) {
+    skipped++;
+    done.push({ ...item, review: item.incoming });
+  }
+}
+
+if (toTranslate.length > 0) {
+  if (MODE === "all") {
+    // One call for all items
+    try {
+      const reviewed = callCopilot(toTranslate);
+      for (const item of reviewed) {
+        translated++;
+        done.push(item);
+      }
+      console.log(`✓ ${translated} items translated in 1 call`);
+    } catch (err) {
+      console.error(`✗ batch failed: ${err.message}, falling back`);
+      fallbackIncoming(toTranslate);
+    }
+  } else if (MODE === "file") {
+    // One call per file
+    const byFileTranslate = {};
+    for (const item of toTranslate) {
+      (byFileTranslate[item.file] ??= []).push(item);
     }
 
-    const prompt = `You are a Vue.js documentation translator (English → Simplified Chinese).
-
-## Terminology
-${terminology}
-
-## Formatting Rules
-${formatting}
-
-## Guidelines
-${guidelines}
-
-## Task
-Translate the "incoming" text below into Simplified Chinese. Use the "current" text as reference for style and tone. Return ONLY the translated text, no explanations.
-
-## Current (Chinese reference)
-${item.current}
-
-## Incoming (to translate)
-${item.incoming}`;
-
-    try {
-      const result = execFileSync("copilot", ["-p", prompt, "--allow-all", "-s"], {
-        encoding: "utf-8",
-        env: { ...process.env },
-        stdio: ["pipe", "pipe", "pipe"],
-        timeout: 120_000,
-      }).trim();
-
-      if (result) {
-        done.push({ ...item, review: result });
-        translated++;
-        console.log("    ✓ translated");
-      } else {
-        console.log("    ⚠ empty result, keeping incoming");
-        done.push({ ...item, review: item.incoming });
-        skipped++;
+    for (const [file, items] of Object.entries(byFileTranslate)) {
+      console.log(`\n📄 ${file} (${items.length} items)`);
+      try {
+        const reviewed = callCopilot(items);
+        for (const item of reviewed) {
+          translated++;
+          done.push(item);
+          console.log(`  lines ${item.lines.join("-")} ✓`);
+        }
+      } catch (err) {
+        console.error(`  ✗ failed: ${err.message}, falling back`);
+        fallbackIncoming(items);
       }
-    } catch (err) {
-      console.error(`    ✗ copilot failed: ${err.message}`);
-      done.push({ ...item, review: item.incoming });
-      skipped++;
+    }
+  } else {
+    // One call per item
+    for (const item of toTranslate) {
+      console.log(`  lines ${item.lines.join("-")}`);
+      try {
+        const reviewed = callCopilot([item]);
+        translated++;
+        done.push(reviewed[0]);
+        console.log(`    ✓ translated`);
+      } catch (err) {
+        console.error(`    ✗ failed: ${err.message}`);
+        skipped++;
+        done.push({ ...item, review: item.incoming });
+      }
     }
   }
 }
