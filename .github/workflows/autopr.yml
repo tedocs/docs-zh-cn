@@ -47,10 +47,17 @@ jobs:
           pnpm install --no-frozen-lockfile
           bun install -g @github/copilot
 
-      # ── 0. Capture sync base hash (before merge) ──
+      # ── 0. Capture sync base hash (last synced upstream commit) ──
       - name: Capture sync base hash
         id: sync-base
-        run: echo "sync_hash=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          # Match sync.js logic: find the last `sync #hash` commit on main
+          HASH=$(git log origin/main --format="%b" | grep -oE 'sync #[0-9a-f]{7,9}' | head -1 | sed 's/sync #//')
+          if [ -z "$HASH" ]; then
+            echo "::warning::No sync hash found on origin/main, falling back to HEAD^2"
+            HASH=$(git rev-parse --short HEAD^2 2>/dev/null || git rev-parse --short HEAD)
+          fi
+          echo "sync_hash=$HASH" >> "$GITHUB_OUTPUT"
 
       # ── 1. Detect changes ──
       - name: Detect changes
@@ -135,10 +142,10 @@ jobs:
             exit 0
           fi
 
-          git commit -m "sync: merge upstream $UPSTREAM_HASH
-
+          git commit -m "sync(autopr): merge upstream $UPSTREAM_HASH
           - Merge result: $MERGE_RESULT
-          - Upstream: vuejs/docs@$UPSTREAM_HASH"
+          - Upstream: vuejs/docs@$UPSTREAM_HASH
+          sync #$UPSTREAM_HASH"
 
           git push origin sync --force-with-lease
 
