@@ -9,6 +9,7 @@ const {
   SYNC_BRANCH,
   TARGET_BRANCH,
   UPSTREAM_HASH,
+  SYNC_BASE_HASH,
   MERGE_RESULT,
   CONFLICT_FILES,
   CHANGED_FILES,
@@ -30,6 +31,10 @@ if (existing) {
 } else {
   // ── 2. Build PR body ──
   let body = `## Upstream Sync\n\n- Upstream: \`${UPSTREAM_REPO}\` @ \`${UPSTREAM_HASH}\`\n- Merge result: \`${MERGE_RESULT}\`\n\n### Changes\n`;
+
+  if (SYNC_BASE_HASH && UPSTREAM_HASH) {
+    body += `\n### Upstream Diff\n\nhttps://github.com/${UPSTREAM_REPO}/compare/${SYNC_BASE_HASH}...${UPSTREAM_HASH}\n`;
+  }
 
   if (CONFLICT_FILES) {
     body += `#### Conflict files (resolved)\n`;

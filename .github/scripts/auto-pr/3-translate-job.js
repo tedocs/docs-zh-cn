@@ -1,5 +1,5 @@
 import { execFileSync } from "child_process";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync, appendFileSync } from "fs";
 
 const BASE = ".github/scripts/auto-pr";
 
@@ -9,11 +9,19 @@ const BASE = ".github/scripts/auto-pr";
  * */
 const MODE = process.env.TRANSLATE_MODE || "all";
 
+function setOutput(key, value) {
+  const outputFile = process.env.GITHUB_OUTPUT;
+  if (outputFile) {
+    appendFileSync(outputFile, `${key}=${value}\n`);
+  }
+}
+
 // Load todo list from merge job
 const todo = JSON.parse(readFileSync(`${BASE}/todo-translation.json`, "utf-8"));
 
 if (todo.length === 0) {
   console.log("No items to translate.");
+  setOutput("translate_status", "skipped");
   process.exit(0);
 }
 
@@ -95,64 +103,48 @@ function callCopilot(items) {
   return reviewed;
 }
 
-function fallbackIncoming(items) {
-  for (const item of items) {
-    skipped++;
-    done.push({ ...item, review: item.incoming });
-  }
-}
-
-if (toTranslate.length > 0) {
-  if (MODE === "all") {
-    // One call for all items
-    try {
+try {
+  if (toTranslate.length > 0) {
+    if (MODE === "all") {
+      // One call for all items
       const reviewed = callCopilot(toTranslate);
       for (const item of reviewed) {
         translated++;
         done.push(item);
       }
       console.log(`✓ ${translated} items translated in 1 call`);
-    } catch (err) {
-      console.error(`✗ batch failed: ${err.message}, falling back`);
-      fallbackIncoming(toTranslate);
-    }
-  } else if (MODE === "file") {
-    // One call per file
-    const byFileTranslate = {};
-    for (const item of toTranslate) {
-      (byFileTranslate[item.file] ??= []).push(item);
-    }
+    } else if (MODE === "file") {
+      // One call per file
+      const byFileTranslate = {};
+      for (const item of toTranslate) {
+        (byFileTranslate[item.file] ??= []).push(item);
+      }
 
-    for (const [file, items] of Object.entries(byFileTranslate)) {
-      console.log(`\n📄 ${file} (${items.length} items)`);
-      try {
+      for (const [file, items] of Object.entries(byFileTranslate)) {
+        console.log(`\n📄 ${file} (${items.length} items)`);
         const reviewed = callCopilot(items);
         for (const item of reviewed) {
           translated++;
           done.push(item);
           console.log(`  lines ${item.lines.join("-")} ✓`);
         }
-      } catch (err) {
-        console.error(`  ✗ failed: ${err.message}, falling back`);
-        fallbackIncoming(items);
       }
-    }
-  } else {
-    // One call per item
-    for (const item of toTranslate) {
-      console.log(`  lines ${item.lines.join("-")}`);
-      try {
+    } else {
+      // One call per item
+      for (const item of toTranslate) {
+        console.log(`  lines ${item.lines.join("-")}`);
         const reviewed = callCopilot([item]);
         translated++;
         done.push(reviewed[0]);
         console.log(`    ✓ translated`);
-      } catch (err) {
-        console.error(`    ✗ failed: ${err.message}`);
-        skipped++;
-        done.push({ ...item, review: item.incoming });
       }
     }
   }
+} catch (err) {
+  console.error(`\n❌ Translation failed: ${err.message}`);
+  setOutput("translate_status", "failed");
+  console.timeEnd("Translation_times");
+  process.exit(1);
 }
 
 writeFileSync(`${BASE}/done-translation.json`, JSON.stringify(done, null, 2), "utf-8");
@@ -162,3 +154,5 @@ console.log(
 );
 
 console.timeEnd("Translation_times");
+setOutput("translate_status", "success");
+

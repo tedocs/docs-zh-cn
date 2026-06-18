@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "17 3 * * 1" # Weekly on Monday at 03:17 UTC
   workflow_dispatch:
+    # 默认 Copilot 阻断，true 为测试需要
+    inputs:
+      skip_translate_gate:
+        description: "Skip translation failure gate (allow PR even if Copilot fails)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -41,6 +47,11 @@ jobs:
           pnpm install --no-frozen-lockfile
           bun install -g @github/copilot
 
+      # ── 0. Capture sync base hash (before merge) ──
+      - name: Capture sync base hash
+        id: sync-base
+        run: echo "sync_hash=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
       # ── 1. Detect changes ──
       - name: Detect changes
         id: detect
@@ -71,10 +82,21 @@ jobs:
       - name: Translate with Copilot CLI
         id: translate
         if: steps.merge.outputs.merge_status == 'conflict'
+        continue-on-error: true
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           UPSTREAM_HASH: ${{ steps.detect.outputs.upstream_hash }}
         run: bun .github/scripts/auto-pr/3-translate-job.js
+
+      # ── Gate: block if translation failed (quota exhausted, etc.) ──
+      - name: Check translation status
+        id: check-translate
+        if: steps.merge.outputs.merge_status == 'conflict' && inputs.skip_translate_gate != true
+        run: |
+          if [ "${{ steps.translate.outcome }}" != "success" ]; then
+            echo "::error::Translation failed (outcome=${{ steps.translate.outcome }}). Blocking downstream steps."
+            exit 1
+          fi
 
       # ── 4. Apply translations ──
       - name: Check done-translation.json
@@ -99,7 +121,7 @@ jobs:
           DETECT_CHANGED_FILES: ${{ steps.detect.outputs.changed_files }}
         run: bun .github/scripts/auto-pr/5-collect-merge-info.js
 
-      # ── Push once after everything ──
+      # ── Push merge (always, even if translation was skipped) ──
       - name: Commit and push to sync
         if: steps.detect.outputs.merge_result != 'no_changes'
         env:
@@ -120,9 +142,13 @@ jobs:
 
           git push origin sync --force-with-lease
 
-      # ── 6. Create PR and request review ──
+      # ── 6. Create PR only if translation succeeded (or no conflicts, or gate skipped) ──
       - name: Create PR and request review
-        if: steps.detect.outputs.merge_result != 'no_changes'
+        if: >-
+          steps.detect.outputs.merge_result != 'no_changes'
+          && (steps.merge.outputs.merge_status != 'conflict'
+              || steps.check-translate.outcome == 'success'
+              || inputs.skip_translate_gate == true)
         env:
           GH_TOKEN: ${{ secrets.REPO_ACTION_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
@@ -130,6 +156,7 @@ jobs:
           SYNC_BRANCH: sync
           TARGET_BRANCH: main
           UPSTREAM_HASH: ${{ steps.detect.outputs.upstream_hash }}
+          SYNC_BASE_HASH: ${{ steps.sync-base.outputs.sync_hash }}
           MERGE_RESULT: ${{ steps.info.outputs.merge_result }}
           CONFLICT_FILES: ${{ steps.info.outputs.conflict_files }}
           CHANGED_FILES: ${{ steps.info.outputs.changed_files }}

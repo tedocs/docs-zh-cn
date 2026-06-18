@@ -7,7 +7,7 @@ const inputPath = path.resolve(
   ".github",
   "scripts",
   "auto-pr",
-  "sync-workflow.svg",
+  "compare-sync-arch.svg",
 );
 const outputPath = path.resolve(
   __dirname,
@@ -15,7 +15,7 @@ const outputPath = path.resolve(
   ".github",
   "scripts",
   "auto-pr",
-  "sync-workflow.png",
+  "compare-sync-arch.png",
 );
 
 const { Resvg } = require("@resvg/resvg-js");

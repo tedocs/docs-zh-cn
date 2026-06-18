@@ -167,15 +167,6 @@ class GitConflictFinder {
 
         sorted.forEach((conflict, idx) => {
           console.log(this.colorize("green", `\n  冲突块 #${conflicts.length - idx}:`));
-          console.log(this.colorize("cyan", "    [current]:"));
-          conflict.ours.split("\n").forEach((line, i) => {
-            console.log(`      【ours   line ${i}】${line}`);
-          });
-          console.log(this.colorize("magenta", "    [=====]"));
-          console.log(this.colorize("cyan", "    [incoming]:"));
-          conflict.theirs.split("\n").forEach((line, i) => {
-            console.log(`      【theirs line ${i}】${line}`);
-          });
 
           // 计算 theirs 替换后的起始和结束行号，然后替换单个冲突块
           const before = content.slice(0, conflict.startIndex);
@@ -200,4 +191,8 @@ class GitConflictFinder {
 const finder = new GitConflictFinder();
 finder.run();
 
-writeFileSync(".github/scripts/auto-pr/todo-translation.json", JSON.stringify(all_replace_contents, null, 2), "utf-8");
+writeFileSync(
+  ".github/scripts/auto-pr/todo-translation.json",
+  JSON.stringify(all_replace_contents, null, 2),
+  "utf-8",
+);
