@@ -51,12 +51,7 @@ jobs:
       - name: Capture sync base hash
         id: sync-base
         run: |
-          # Match sync.js logic: find the last `sync #hash` commit on main
-          HASH=$(git log origin/main --format="%b" | grep -oE 'sync #[0-9a-f]{7,9}' | head -1 | sed 's/sync #//')
-          if [ -z "$HASH" ]; then
-            echo "::warning::No sync hash found on origin/main, falling back to HEAD^2"
-            HASH=$(git rev-parse --short HEAD^2 2>/dev/null || git rev-parse --short HEAD)
-          fi
+          HASH=$(git rev-parse --short "$(git merge-base HEAD origin/upstream)")
           echo "sync_hash=$HASH" >> "$GITHUB_OUTPUT"
 
       # ── 1. Detect changes ──
