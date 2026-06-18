@@ -4,7 +4,7 @@
 
 ## 流程总览
 
-![同步工作流](sync-workflow.png)
+![同步工作流](sync-workflow.svg)
 
 ## 本流程是做什么的？
 
@@ -24,11 +24,11 @@
 | `upstream` | 上游 `vuejs/docs:main` 的镜像，每日自动同步              |
 | `sync`     | 翻译工作分支，合并上游变更后翻译，最终通过 PR 合并到 main |
 
-## 如何使用 `autopr.yam`
+## 如何使用 `autopr.yml`
 
-### 第一步：自动同步上游 (autosync.yml)
+### 第一步 (已有)：自动同步上游 (autosync.yml)
 
-**触发方式：**每日 00:00 自动执行 / 手动触发
+**触发方式**：每日 00:00 自动执行 / 手动触发
 
 **流程：**
 
@@ -41,7 +41,7 @@ graph LR
     A[vuejs/docs:main] -->|autosync.yml| B[vuejs-translations:upstream]
 ```
 
-### 第二步：检测、合并、翻译、提交、发 PR (autopr.yml)
+### 第二步 (新增)：检测、合并、翻译、提交、发 PR (autopr.yml)
 
 **触发方式：**每周一 03:17 UTC 自动执行 / 手动触发
 
@@ -52,6 +52,7 @@ graph TD
     A[1-detect-changes-job.js] -->|has_changes| B[2-merge-job.js]
     A -->|no_changes| Z[结束]
     B --> C[3-translate-job.js]
+    C -->|读取| P[translation-prompt.md]
     C --> D[4-apply-job.js]
     D --> E[5-collect-merge-info.js]
     E --> F[commit + push]
@@ -77,9 +78,11 @@ graph TD
 #### 3-translate-job.js — Copilot CLI 翻译
 
 - 读取 `todo-translation.json`
-- 加载翻译约定 (terminology.md、formatting.md、guidelines.md)
-- 对每个冲突块调用 `copilot -p "..." --allow-all` 翻译 EN→ZH
+- 加载 `translation-prompt.md` 模板，注入翻译约定 (terminology.md、formatting.md、guidelines.md)
+- 过滤 identical 条目（`incoming === current`），仅翻译有差异的条目
+- 根据 `TRANSLATE_MODE` 环境变量选择模式（默认 `all`），调用 `copilot -p "..." --allow-all -s` 翻译 EN→ZH
 - 输出 `done-translation.json`
+- 翻译失败时设置 `translate_status=failed`，由下游 gate 拦截
 
 #### 4-apply-job.js — 应用翻译
 
@@ -94,10 +97,17 @@ graph TD
 
 #### 6-create-pr-and-review.js — 发起 PR + Review
 
-- `gh pr list` 检查是否已有 open PR
-- `gh pr create` 创建 PR (含 body、labels)
+- `gh pr list` 检查是否已有 open PR（有则复用，避免重复创建）
+- `gh pr create` 创建 PR：
+  - title: `Sync(autopr) #<hash> — upstream merge & translate`
+  - body: 包含 upstream hash、merge result、upstream diff 链接、冲突文件列表、翻译文件列表
+  - labels: `从英文版同步`、`请使用 merge commit 合并`
 - GitHub API 请求 `copilot-pull-request-reviewer[bot]` review
-- 发表评论要求检查：翻译准确性、无意外变更、markdown 格式完整性
+- 发表评论要求检查：翻译准确性、无意外变更、markdown 格式完整性、代码块和链接完整性
+
+### 仍需保留 `sync`
+
+为了避免预期之外的因素导致 `autopr.yml` 的方式失败，目前仍保留手动合并同步的方式，请参考 `pnpm run sync`。
 
 ## Secrets 配置
 
@@ -115,23 +125,42 @@ graph TD
 
 ## 特殊说明
 
-### 翻译策略
+### 翻译模式
 
-#### `all` 模式
+通过环境变量 `TRANSLATE_MODE` 控制，默认 `all`。
 
-在 [3-translate-job.js](3-translate-job.js) 中使用了 `MODE=all` 的方式来批量处理 `todo-translation.json`，以追求效率，测试 42 个 item 仅需 3 分钟左右，在目前 vuejs 文档区域平稳当下，比较适合，预期不会有大量的变更出现。
+| 模式   | 行为                                      | 适用场景                   |
+|--------|-------------------------------------------|--------------------------|
+| `all`  | 一次 Copilot CLI 调用翻译所有条目           | 条目少（<50），追求效率     |
+| `file` | 按文件分组，每个文件一次调用                 | 条目较多，按文件粒度控制    |
+| `item` | 每个条目单独一次调用                        | 大量变更，需要精确控制质量   |
 
-当然，如果出现大量变更的情况，可能导致 `dodo-translation.json` 很大 Copilot CLI 处理失败，这时候，可能需要分割 `todo-translation.json` 的大小来解决。
+3-translate-job.js 会自动过滤 identical 条目（`incoming === current`），仅翻译有实际差异的条目，减少不必要的 Copilot CLI 调用。
 
-#### `file` 模式
+如果出现大量变更导致 `todo-translation.json` 过大、Copilot CLI 处理失败，可切换到 `file` 或 `item` 模式解决。
 
-基于 `todo-translation.json` 每一项来单个处理，这意味着，数组的每一项都要完整走遍 Copilot CLI 的任务处理。
+### translation-prompt.md
 
-`file` 模式在处理大型变更时候，可能会恰当，当然，需要减少 `todo-translation.json` 的数组长度，以节省成本。
+[translation-prompt.md](translation-prompt.md) 是翻译的核心 prompt 模板，包含：
+
+- 决策流程（跳过判断 → 插入/替换策略）
+- 翻译原则（最小改动、术语准确、风格一致）
+- 不需翻译的内容（代码块、行内代码、URL、标识符等）
+- 完整示例（10 种典型场景）
+
+模板中的 `{{TERMINOLOGY}}`、`{{FORMATTING}}`、`{{GUIDELINES}}`、`{{ITEMS}}` 占位符由 3-translate-job.js 运行时替换。
+
+### 翻译失败 Gate
+
+工作流内置了翻译失败保护机制：
+
+- 3-translate-job.js 设置 `continue-on-error: true`，翻译失败不会立即终止 workflow
+- 下游 `Check translation status` 步骤检查翻译结果，失败时阻断 PR 创建
+- 手动触发时可通过 `skip_translate_gate: true` 跳过此检查（用于测试）
 
 ### sync 分支仍需手动处理
 
-- [ ] 后续考虑采用 ci 的方式来完成，预计 `sync->main` 仍需认为处理
+- [ ] 后续考虑采用 ci 的方式来完成，预计 `sync->main` 仍需人为处理
 
 ## 特别感谢
 
