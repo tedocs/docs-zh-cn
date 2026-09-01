@@ -1,8 +1,8 @@
 name: Auto PR (Sync & Translate)
 
 on:
-  schedule:
-    - cron: "17 3 * * 1" # Weekly on Monday at 03:17 UTC
+  # schedule:
+    # - cron: "17 3 * * 1" # Weekly on Monday at 03:17 UTC
   workflow_dispatch:
     # 默认 Copilot 阻断，true 为测试需要
     inputs:
